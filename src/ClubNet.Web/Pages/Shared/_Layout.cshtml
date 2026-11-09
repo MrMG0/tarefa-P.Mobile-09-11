@@ -1,0 +1,228 @@
+@inject ClubNet.Web.Services.IClubNetApiClient ApiClient
+@{
+    var user = ApiClient.CurrentUser;
+    var isLoggedIn = ApiClient.IsLoggedIn;
+    var isSuperAdmin = user?.Perfil == "SUPERADMIN";
+    var isPresidente = user?.Perfil == "PRESIDENTE";
+    var isAdmin = user?.Perfil == "ADMIN";
+    var isTesoureiro = user?.Perfil == "TESOUREIRO";
+    var canManageClub = isSuperAdmin || isPresidente || isAdmin;
+    var canManageFinance = isSuperAdmin || isPresidente || isAdmin || isTesoureiro;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ClubNet Gestão</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --brand-primary: #1e3a8a;
+            --brand-secondary: #0284c7;
+            --brand-accent: #059669;
+            --bg-light: #f8fafc;
+        }
+        body {
+            background-color: var(--bg-light);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            padding-top: 1rem;
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .sidebar-brand {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 1rem;
+        }
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 1.25rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+            margin: 0.15rem 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .nav-link-custom:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.08);
+        }
+        .nav-link-custom.active {
+            color: #ffffff;
+            background: #0284c7;
+        }
+        .user-panel {
+            padding: 1rem;
+            margin: 1rem 0.75rem;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .badge-role {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .badge-SUPERADMIN { background: #dc2626; color: white; }
+        .badge-PRESIDENTE { background: #7c3aed; color: white; }
+        .badge-ADMIN { background: #2563eb; color: white; }
+        .badge-TESOUREIRO { background: #059669; color: white; }
+        .badge-ASSOCIADO { background: #d97706; color: white; }
+        .card-stat {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .card-stat:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    @if (isLoggedIn)
+    {
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <i class="bi bi-shield-shaded"></i> ClubNet
+            </div>
+
+            <div class="user-panel">
+                <div class="fw-bold text-truncate" title="@user?.Nome">@user?.Nome</div>
+                <div class="small text-muted text-truncate mb-1">
+                    @(user?.NomeClube ?? "Administração Central")
+                </div>
+                <span class="badge badge-role badge-@user?.Perfil">@user?.Perfil</span>
+            </div>
+
+            <nav class="nav flex-column">
+                <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "active" : "")" asp-page="/Index">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                @if (isSuperAdmin)
+                {
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Clubes") == true ? "active" : "")" asp-page="/Clubes/Index">
+                        <i class="bi bi-buildings"></i> Clubes da Rede
+                    </a>
+                }
+
+                @if (canManageClub)
+                {
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Associados") == true ? "active" : "")" asp-page="/Associados/Index">
+                        <i class="bi bi-people"></i> Associados
+                    </a>
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Eventos") == true ? "active" : "")" asp-page="/Eventos/Index">
+                        <i class="bi bi-calendar-event"></i> Eventos
+                    </a>
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Espacos") == true ? "active" : "")" asp-page="/Espacos/Index">
+                        <i class="bi bi-door-open"></i> Espaços
+                    </a>
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Reservas") == true ? "active" : "")" asp-page="/Reservas/Index">
+                        <i class="bi bi-calendar-check"></i> Agenda & Reservas
+                    </a>
+                }
+
+                @if (canManageFinance)
+                {
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Mensalidades") == true ? "active" : "")" asp-page="/Mensalidades/Index">
+                        <i class="bi bi-cash-stack"></i> Mensalidades
+                    </a>
+                }
+
+                @if (canManageClub)
+                {
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Atendimento") == true ? "active" : "")" asp-page="/Atendimento/Index">
+                        <i class="bi bi-chat-left-text"></i> Atendimento
+                    </a>
+                }
+
+                @if (isSuperAdmin || isPresidente)
+                {
+                    <a class="nav-link-custom @(ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Usuarios") == true ? "active" : "")" asp-page="/Usuarios/Index">
+                        <i class="bi bi-person-gear"></i> Administradores
+                    </a>
+                }
+
+                <div class="border-top border-secondary my-3 mx-3"></div>
+
+                <a class="nav-link-custom text-danger" asp-page="/Login" asp-page-handler="Logout">
+                    <i class="bi bi-box-arrow-right"></i> Sair do Painel
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0 text-dark">@ViewData["Title"]</h2>
+                    <span class="text-secondary small">Sistema Integrado de Gestão de Clubes</span>
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark border p-2">
+                        <i class="bi bi-clock me-1"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+                    </span>
+                </div>
+            </div>
+
+            @if (TempData["MensagemSucesso"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2"></i> @TempData["MensagemSucesso"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["MensagemErro"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i> @TempData["MensagemErro"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    }
+    else
+    {
+        <div class="container py-5">
+            @RenderBody()
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

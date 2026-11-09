@@ -1,0 +1,212 @@
+@page
+@model ClubNet.Web.Pages.Atendimento.IndexModel
+@{
+    ViewData["Title"] = "Fila de Atendimento: Solicitações & Reclamações";
+}
+
+<ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold" id="pills-solic-tab" data-bs-toggle="pill" data-bs-target="#pills-solic" type="button" role="tab">
+            <i class="bi bi-chat-left-dots me-1"></i> Solicitações de Associados (@Model.Solicitacoes.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold text-danger" id="pills-reclam-tab" data-bs-toggle="pill" data-bs-target="#pills-reclam" type="button" role="tab">
+            <i class="bi bi-exclamation-octagon me-1"></i> Reclamações e Ouvidoria (@Model.Reclamacoes.Count)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+    <!-- ABA SOLICITAÇÕES -->
+    <div class="tab-pane fade show active" id="pills-solic" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Solicitações Diversas</h5>
+                <small class="text-muted">Pedidos de carteirinha, inclusão de dependente, regras e informações</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Data</th>
+                                <th>Associado</th>
+                                <th>Tipo</th>
+                                <th>Descrição do Pedido</th>
+                                <th>Status</th>
+                                <th>Resposta Registrada</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Solicitacoes.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">Nenhuma solicitação aberta.</td>
+                                </tr>
+                            }
+                            @foreach (var s in Model.Solicitacoes)
+                            {
+                                <tr>
+                                    <td><small class="text-muted">@s.DataAbertura.ToString("dd/MM/yyyy HH:mm")</small></td>
+                                    <td><div class="fw-semibold">@s.NomeAssociado</div></td>
+                                    <td><span class="badge bg-light text-dark border">@s.Tipo</span></td>
+                                    <td>@s.Descricao</td>
+                                    <td>
+                                        @if (s.Status == "RESPONDIDA" || s.Status == "ENCERRADA")
+                                        {
+                                            <span class="badge bg-success">@s.Status</span>
+                                        }
+                                        else if (s.Status == "EM_ANALISE")
+                                        {
+                                            <span class="badge bg-info text-dark">Em Análise</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Aberta</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(s.Resposta))
+                                        {
+                                            <div class="small text-muted fst-italic">"@s.Resposta"</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="openResponderModal(@s.Id, 'SOLICITACAO', '@s.Tipo', '@s.Status')">
+                                            <i class="bi bi-reply"></i> Responder
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA RECLAMAÇÕES -->
+    <div class="tab-pane fade" id="pills-reclam" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-danger">Reclamações Registradas (Acesso Restrito)</h5>
+                <small class="text-muted">Manifestações de associados recebidas pelo aplicativo</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Data</th>
+                                <th>Associado</th>
+                                <th>Assunto</th>
+                                <th>Descrição da Ocorrência</th>
+                                <th>Status</th>
+                                <th>Parecer da Diretoria</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Reclamacoes.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">Nenhuma reclamação registrada.</td>
+                                </tr>
+                            }
+                            @foreach (var rc in Model.Reclamacoes)
+                            {
+                                <tr>
+                                    <td><small class="text-muted">@rc.DataAbertura.ToString("dd/MM/yyyy HH:mm")</small></td>
+                                    <td><div class="fw-semibold">@rc.NomeAssociado</div></td>
+                                    <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">@(rc.Assunto ?? "Ocorrência")</span></td>
+                                    <td>@rc.Descricao</td>
+                                    <td>
+                                        @if (rc.Status == "RESPONDIDA" || rc.Status == "ENCERRADA")
+                                        {
+                                            <span class="badge bg-success">@rc.Status</span>
+                                        }
+                                        else if (rc.Status == "EM_ANALISE")
+                                        {
+                                            <span class="badge bg-info text-dark">Em Análise</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Aberta</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(rc.Resposta))
+                                        {
+                                            <div class="small text-muted fst-italic">"@rc.Resposta"</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="openResponderModal(@rc.Id, 'RECLAMACAO', '@rc.Assunto', '@rc.Status')">
+                                            <i class="bi bi-reply"></i> Dar Parecer
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Responder -->
+<div class="modal fade" id="modalResponder" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Responder">
+                <input type="hidden" asp-for="AtendimentoId" id="modalAtendimentoId" />
+                <input type="hidden" asp-for="TipoRegistro" id="modalTipoRegistro" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">Responder Atendimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Novo Status</label>
+                        <select asp-for="NovoStatus" id="modalNovoStatus" class="form-select">
+                            <option value="RESPONDIDA">RESPONDIDA</option>
+                            <option value="EM_ANALISE">EM ANÁLISE</option>
+                            <option value="ENCERRADA">ENCERRADA</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mensagem / Resposta ao Associado *</label>
+                        <textarea asp-for="RespostaTexto" class="form-control" rows="4" placeholder="Escreva a resposta que será visualizada pelo associado no aplicativo..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Enviar Resposta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openResponderModal(id, tipo, titulo, statusAtual) {
+        document.getElementById('modalAtendimentoId').value = id;
+        document.getElementById('modalTipoRegistro').value = tipo;
+        document.getElementById('modalTitle').innerText = (tipo === 'RECLAMACAO' ? 'Parecer da Reclamação: ' : 'Responder Solicitação: ') + (titulo || '');
+        
+        var modal = new bootstrap.Modal(document.getElementById('modalResponder'));
+        modal.show();
+    }
+</script>

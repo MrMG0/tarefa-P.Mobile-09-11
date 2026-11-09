@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dtos="clr-namespace:ClubNet.Shared.DTOs;assembly=ClubNet.Shared"
+             x:Class="ClubNet.App.Views.EventsPage"
+             Title="Eventos"
+             BackgroundColor="#f8fafc">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Border BackgroundColor="#0f172a" Padding="20" StrokeThickness="0">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="PROGRAMAÇÃO SOCIAL" TextColor="#38bdf8" FontSize="11" FontAttributes="Bold" />
+                <Label Text="Eventos &amp; Atividades do Clube" TextColor="White" FontSize="18" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Lista de Eventos -->
+        <RefreshView Grid.Row="1" x:Name="RefreshViewEventos" Refreshing="OnRefreshRequested">
+            <CollectionView x:Name="CvEventos">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center" Padding="30">
+                        <Label Text="🎉" FontSize="40" HorizontalOptions="Center" />
+                        <Label Text="Nenhum evento programado no momento" TextColor="#64748b" FontSize="14" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:EventoDto">
+                        <Border BackgroundColor="White"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 12"
+                                Margin="16,8"
+                                Padding="16">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{Binding Titulo}"
+                                       TextColor="#0f172a"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+
+                                <Label Text="{Binding Descricao}"
+                                       TextColor="#475569"
+                                       FontSize="13" />
+
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding DataInicio, StringFormat='📅 {0:dd/MM/yyyy HH:mm}'}"
+                                               TextColor="#0284c7"
+                                               FontSize="12"
+                                               FontAttributes="Bold" />
+                                        <Label Text="{Binding Local, StringFormat='📍 {0}'}"
+                                               TextColor="#64748b"
+                                               FontSize="12" />
+                                    </VerticalStackLayout>
+
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#f0fdf4"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            Padding="8,4"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding PublicoAlvo}"
+                                               TextColor="#166534"
+                                               FontSize="10"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

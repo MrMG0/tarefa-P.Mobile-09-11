@@ -1,0 +1,225 @@
+@page
+@model ClubNet.Web.Pages.IndexModel
+@{
+    ViewData["Title"] = "Dashboard Operacional";
+    var user = Model.CurrentUser;
+    var isSuperAdmin = user?.Perfil == "SUPERADMIN";
+    var isTesoureiro = user?.Perfil == "TESOUREIRO";
+}
+
+<div class="row g-4 mb-4">
+    @if (isSuperAdmin)
+    {
+        <div class="col-md-3">
+            <div class="card card-stat bg-white p-3 border-start border-primary border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Clubes Cadastrados</div>
+                        <div class="h2 fw-bold text-dark mb-0">@(Model.Stats?.TotalClubes ?? 0)</div>
+                    </div>
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="bi bi-buildings fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="col-md-3">
+        <div class="card card-stat bg-white p-3 border-start border-success border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Associados Ativos</div>
+                    <div class="h2 fw-bold text-dark mb-0">@(Model.Stats?.TotalAssociadosAtivos ?? 0)</div>
+                </div>
+                <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                    <i class="bi bi-person-check fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!isTesoureiro)
+    {
+        <div class="col-md-3">
+            <div class="card card-stat bg-white p-3 border-start border-warning border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Aprovações Pendentes</div>
+                        <div class="h2 fw-bold text-dark mb-0">@(Model.Stats?.TotalSolicitacoesAssociacaoPendentes ?? 0)</div>
+                    </div>
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-circle">
+                        <i class="bi bi-person-plus fs-3"></i>
+                    </div>
+                </div>
+                @if ((Model.Stats?.TotalSolicitacoesAssociacaoPendentes ?? 0) > 0)
+                {
+                    <a asp-page="/Associados/Index" asp-route-situacao="PENDENTE" class="small text-warning text-decoration-none mt-2 fw-semibold">
+                        Verificar solicitações <i class="bi bi-arrow-right"></i>
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-stat bg-white p-3 border-start border-info border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Reservas Pendentes</div>
+                        <div class="h2 fw-bold text-dark mb-0">@(Model.Stats?.TotalReservasPendentes ?? 0)</div>
+                    </div>
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-circle">
+                        <i class="bi bi-calendar-check fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="col-md-3">
+        <div class="card card-stat bg-white p-3 border-start border-danger border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-semibold text-uppercase">Mensalidades em Aberto</div>
+                    <div class="h4 fw-bold text-dark mb-0">
+                        R$ @((Model.Stats?.ValorTotalMensalidadesAbertas ?? 0).ToString("N2"))
+                    </div>
+                    <div class="small text-muted">(@(Model.Stats?.TotalMensalidadesAbertas ?? 0) faturas)</div>
+                </div>
+                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle">
+                    <i class="bi bi-cash-stack fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        @if (isSuperAdmin)
+        {
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Rede de Clubes Cadastrados</h5>
+                    <a asp-page="/Clubes/Index" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i> Gerenciar Clubes
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Clube</th>
+                                    <th>Sigla</th>
+                                    <th>Cidade/UF</th>
+                                    <th>Associados</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model.Clubes)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@c.Nome</td>
+                                        <td><span class="badge bg-secondary">@c.Sigla</span></td>
+                                        <td>@c.Cidade/@c.Uf</td>
+                                        <td><span class="badge bg-info text-dark">@c.TotalAssociados ativos</span></td>
+                                        <td>
+                                            @if (c.Ativo)
+                                            {
+                                                <span class="badge bg-success">Ativo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inativo</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Ações Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a asp-page="/Associados/Index" class="btn btn-outline-primary w-100 py-3 text-start d-flex align-items-center gap-3">
+                                <i class="bi bi-people fs-2"></i>
+                                <div>
+                                    <div class="fw-bold">Associados</div>
+                                    <small class="text-muted">Aprovar e consultar</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a asp-page="/Reservas/Index" class="btn btn-outline-info w-100 py-3 text-start d-flex align-items-center gap-3">
+                                <i class="bi bi-calendar-check fs-2"></i>
+                                <div>
+                                    <div class="fw-bold">Agenda de Reservas</div>
+                                    <small class="text-muted">Espaços e eventos</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a asp-page="/Mensalidades/Index" class="btn btn-outline-success w-100 py-3 text-start d-flex align-items-center gap-3">
+                                <i class="bi bi-cash fs-2"></i>
+                                <div>
+                                    <div class="fw-bold">Tesouraria</div>
+                                    <small class="text-muted">Quitar mensalidades</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Fila de Atendimento</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold">Solicitações Abertas</div>
+                        <small class="text-muted">Pedidos de carteirinha, dependentes</small>
+                    </div>
+                    <span class="badge bg-primary fs-6">@(Model.Stats?.TotalSolicitacoesAbertas ?? 0)</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold">Reclamações em Aberto</div>
+                        <small class="text-muted">Acesso restrito à diretoria</small>
+                    </div>
+                    <span class="badge bg-danger fs-6">@(Model.Stats?.TotalReclamacoesAbertas ?? 0)</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <div>
+                        <div class="fw-semibold">Eventos Próximos</div>
+                        <small class="text-muted">Programação ativa</small>
+                    </div>
+                    <span class="badge bg-success fs-6">@(Model.Stats?.TotalEventosProximos ?? 0)</span>
+                </div>
+
+                <div class="mt-3">
+                    <a asp-page="/Atendimento/Index" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-inbox me-1"></i> Acessar Central de Atendimento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

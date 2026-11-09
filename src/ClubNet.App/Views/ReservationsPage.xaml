@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dtos="clr-namespace:ClubNet.Shared.DTOs;assembly=ClubNet.Shared"
+             x:Class="ClubNet.App.Views.ReservationsPage"
+             Title="Reservas"
+             BackgroundColor="#f8fafc">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Header -->
+        <Border BackgroundColor="#0f172a" Padding="20" StrokeThickness="0">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="ESPAÇOS E LOCAÇÃO" TextColor="#38bdf8" FontSize="11" FontAttributes="Bold" />
+                <Label Text="Reservas de Espaços do Clube" TextColor="White" FontSize="18" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Segmented Tab: Minhas Reservas vs Nova Reserva -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="16,12" ColumnSpacing="10" BackgroundColor="#f1f5f9">
+            <Button x:Name="BtnAbaMinhasReservas"
+                    Text="Minhas Reservas"
+                    BackgroundColor="#0284c7"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    Clicked="OnAbaMinhasReservasClicked" />
+            <Button x:Name="BtnAbaNovaReserva"
+                    Grid.Column="1"
+                    Text="+ Nova Reserva"
+                    BackgroundColor="#cbd5e1"
+                    TextColor="#334155"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    Clicked="OnAbaNovaReservaClicked" />
+        </Grid>
+
+        <!-- LISTA DE MINHAS RESERVAS -->
+        <RefreshView Grid.Row="2" x:Name="PanelMinhasReservas" Refreshing="OnRefreshReservas">
+            <CollectionView x:Name="CvReservas">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center" Padding="30">
+                        <Label Text="📅" FontSize="40" HorizontalOptions="Center" />
+                        <Label Text="Você ainda não possui reservas solicitadas" TextColor="#64748b" FontSize="14" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ReservaDto">
+                        <Border BackgroundColor="White"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 12"
+                                Margin="16,8"
+                                Padding="16">
+                            <VerticalStackLayout Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding NomeEspaco}"
+                                           TextColor="#0f172a"
+                                           FontSize="15"
+                                           FontAttributes="Bold" />
+
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#f1f5f9"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            Padding="8,4">
+                                        <Label Text="{Binding Status}"
+                                               TextColor="#0284c7"
+                                               FontSize="11"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
+
+                                <Label Text="{Binding DataHoraInicio, StringFormat='Início: {0:dd/MM/yyyy HH:mm}'}"
+                                       TextColor="#475569"
+                                       FontSize="13" />
+                                <Label Text="{Binding DataHoraFim, StringFormat='Término: {0:dd/MM/yyyy HH:mm}'}"
+                                       TextColor="#475569"
+                                       FontSize="13" />
+
+                                <Label Text="{Binding Finalidade, StringFormat='Finalidade: {0}'}"
+                                       TextColor="#64748b"
+                                       FontSize="12" />
+
+                                <Label Text="{Binding Observacao}"
+                                       TextColor="#94a3b8"
+                                       FontSize="11"
+                                       FontAttributes="Italic" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- FORMULÁRIO DE NOVA RESERVA -->
+        <ScrollView Grid.Row="2" x:Name="PanelNovaReserva" IsVisible="False" Padding="20">
+            <VerticalStackLayout Spacing="14">
+                <Label Text="Solicitar Agendamento de Espaço" TextColor="#0f172a" FontSize="16" FontAttributes="Bold" />
+
+                <Label Text="Selecione o Espaço Desejado *" TextColor="#334155" FontSize="13" FontAttributes="Bold" />
+                <Picker x:Name="PickerEspacos"
+                        Title="Escolha o espaço..."
+                        BackgroundColor="White"
+                        ItemDisplayBinding="{Binding Nome}" />
+
+                <Label Text="Data da Reserva *" TextColor="#334155" FontSize="13" FontAttributes="Bold" />
+                <DatePicker x:Name="DpDataReserva" BackgroundColor="White" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Horário de Início *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <TimePicker x:Name="TpInicio" Time="12:00:00" BackgroundColor="White" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Horário de Término *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <TimePicker x:Name="TpFim" Time="18:00:00" BackgroundColor="White" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Label Text="Finalidade da Reserva *" TextColor="#334155" FontSize="13" FontAttributes="Bold" />
+                <Entry x:Name="TxtFinalidade"
+                       Placeholder="ex: Confraternização de aniversário"
+                       BackgroundColor="White" />
+
+                <Button Text="Enviar Solicitação de Reserva"
+                        BackgroundColor="#0284c7"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="48"
+                        Margin="0,10,0,0"
+                        Clicked="OnEnviarReservaClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

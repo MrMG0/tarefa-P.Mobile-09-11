@@ -1,0 +1,120 @@
+@page
+@model ClubNet.Web.Pages.Clubes.IndexModel
+@{
+    ViewData["Title"] = "Gestão da Rede de Clubes (Superadmin)";
+}
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Clubes Integrados</h5>
+            <small class="text-muted">Unidades participantes da plataforma multi-clube</small>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoClube">
+            <i class="bi bi-plus-lg me-1"></i> Novo Clube
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Clube</th>
+                        <th>Sigla</th>
+                        <th>Localização</th>
+                        <th>Telefone / E-mail</th>
+                        <th>Associados Ativos</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Clubes)
+                    {
+                        <tr>
+                            <td>#@c.Id</td>
+                            <td class="fw-bold">@c.Nome</td>
+                            <td><span class="badge bg-secondary">@c.Sigla</span></td>
+                            <td>@c.Cidade / @c.Uf</td>
+                            <td>
+                                <div class="small">@c.Telefone</div>
+                                <div class="small text-muted">@c.Email</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">@c.TotalAssociados</span>
+                            </td>
+                            <td>
+                                @if (c.Ativo)
+                                {
+                                    <span class="badge bg-success">Ativo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inativo</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-page-handler="ToggleStatus" asp-route-id="@c.Id" class="btn btn-sm @(c.Ativo ? "btn-outline-danger" : "btn-outline-success")">
+                                    <i class="bi bi-power"></i> @(c.Ativo ? "Desativar" : "Ativar")
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Clube -->
+<div class="modal fade" id="modalNovoClube" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Criar">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Cadastrar Novo Clube</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome da Unidade *</label>
+                        <input asp-for="NovoClube.Nome" class="form-control" placeholder="ex: Clube Náutico Guaíra" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">Sigla</label>
+                            <input asp-for="NovoClube.Sigla" class="form-control" placeholder="CNG" />
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label fw-semibold">Cidade</label>
+                            <input asp-for="NovoClube.Cidade" class="form-control" placeholder="Guaíra" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">UF</label>
+                            <input asp-for="NovoClube.Uf" class="form-control" placeholder="PR" maxlength="2" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Endereço</label>
+                        <input asp-for="NovoClube.Endereco" class="form-control" placeholder="Rua / Avenida e número" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Telefone</label>
+                            <input asp-for="NovoClube.Telefone" class="form-control" placeholder="(44) 3642-0000" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">E-mail</label>
+                            <input asp-for="NovoClube.Email" type="email" class="form-control" placeholder="contato@clube.com.br" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Salvar Clube</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

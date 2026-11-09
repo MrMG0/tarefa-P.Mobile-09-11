@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dtos="clr-namespace:ClubNet.Shared.DTOs;assembly=ClubNet.Shared"
+             x:Class="ClubNet.App.Views.PaymentsPage"
+             Title="Mensalidades"
+             BackgroundColor="#f8fafc">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Border BackgroundColor="#0f172a" Padding="20" StrokeThickness="0">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="MINHAS MENSALIDADES" TextColor="#38bdf8" FontSize="11" FontAttributes="Bold" />
+                <Label Text="Situação Financeira do Associado" TextColor="White" FontSize="18" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Lista de Mensalidades -->
+        <RefreshView Grid.Row="1" x:Name="RefreshViewMensalidades" Refreshing="OnRefreshRequested">
+            <CollectionView x:Name="CvMensalidades">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center" Padding="30">
+                        <Label Text="💳" FontSize="40" HorizontalOptions="Center" />
+                        <Label Text="Nenhuma mensalidade registrada" TextColor="#64748b" FontSize="14" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:MensalidadeDto">
+                        <Border BackgroundColor="White"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 12"
+                                Margin="16,8"
+                                Padding="16">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding ReferenciaMes, StringFormat='Referência: {0}'}"
+                                           TextColor="#0f172a"
+                                           FontSize="15"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding DataVencimento, StringFormat='Vencimento: {0:dd/MM/yyyy}'}"
+                                           TextColor="#64748b"
+                                           FontSize="13" />
+                                    <Label Text="{Binding Observacao}"
+                                           TextColor="#94a3b8"
+                                           FontSize="12" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="4">
+                                    <Label Text="{Binding Valor, StringFormat='R$ {0:N2}'}"
+                                           TextColor="#0f172a"
+                                           FontSize="17"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="End" />
+
+                                    <Border BackgroundColor="#f1f5f9"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            Padding="8,4"
+                                            HorizontalOptions="End">
+                                        <Label Text="{Binding Situacao}"
+                                               TextColor="#0369a1"
+                                               FontSize="11"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

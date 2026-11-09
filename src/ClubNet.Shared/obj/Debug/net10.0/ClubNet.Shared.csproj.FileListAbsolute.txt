@@ -1,0 +1,11 @@
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\bin\Debug\net10.0\ClubNet.Shared.deps.json
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\bin\Debug\net10.0\ClubNet.Shared.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\bin\Debug\net10.0\ClubNet.Shared.pdb
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.AssemblyInfoInputs.cache
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.AssemblyInfo.cs
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.csproj.CoreCompileInputs.cache
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\refint\ClubNet.Shared.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.pdb
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ref\ClubNet.Shared.dll

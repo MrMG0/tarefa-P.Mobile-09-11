@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dtos="clr-namespace:ClubNet.Shared.DTOs;assembly=ClubNet.Shared"
+             x:Class="ClubNet.App.Views.RequestsPage"
+             Title="Atendimento"
+             BackgroundColor="#f8fafc">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Header -->
+        <Border BackgroundColor="#0f172a" Padding="20" StrokeThickness="0">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="CANAL DIRETO COM A DIRETORIA" TextColor="#38bdf8" FontSize="11" FontAttributes="Bold" />
+                <Label Text="Solicitações &amp; Reclamações" TextColor="White" FontSize="18" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Seletor: Solicitações vs Reclamações -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="16,12" ColumnSpacing="10" BackgroundColor="#f1f5f9">
+            <Button x:Name="BtnAbaSolic"
+                    Text="Minhas Solicitações"
+                    BackgroundColor="#0284c7"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    Clicked="OnAbaSolicClicked" />
+            <Button x:Name="BtnAbaReclam"
+                    Grid.Column="1"
+                    Text="Minhas Reclamações"
+                    BackgroundColor="#cbd5e1"
+                    TextColor="#334155"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    Clicked="OnAbaReclamClicked" />
+        </Grid>
+
+        <!-- PAINEL SOLICITAÇÕES -->
+        <Grid Grid.Row="2" x:Name="PanelSolic" RowDefinitions="Auto,*">
+            <Border Margin="16,8" BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 12" Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Nova Solicitação" TextColor="#0f172a" FontSize="14" FontAttributes="Bold" />
+                    <Entry x:Name="TxtSolicTipo" Placeholder="Tipo (ex: Carteirinha, Segunda via...)" BackgroundColor="#f8fafc" />
+                    <Editor x:Name="TxtSolicDesc" Placeholder="Descreva sua solicitação..." HeightRequest="80" BackgroundColor="#f8fafc" />
+                    <Button Text="Enviar Solicitação" BackgroundColor="#0284c7" TextColor="White" FontAttributes="Bold" HeightRequest="40" Clicked="OnEnviarSolicClicked" />
+                </VerticalStackLayout>
+            </Border>
+
+            <CollectionView Grid.Row="1" x:Name="CvSolic">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:SolicitacaoDto">
+                        <Border BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 12" Margin="16,6" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding Tipo}" TextColor="#0f172a" FontSize="14" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Text="{Binding Status}" TextColor="#0284c7" FontSize="11" FontAttributes="Bold" />
+                                </Grid>
+                                <Label Text="{Binding Descricao}" TextColor="#475569" FontSize="13" />
+                                <Label Text="{Binding Resposta, StringFormat='Resposta do Clube: &quot;{0}&quot;'}" TextColor="#059669" FontSize="12" FontAttributes="Italic" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- PAINEL RECLAMAÇÕES -->
+        <Grid Grid.Row="2" x:Name="PanelReclam" RowDefinitions="Auto,*" IsVisible="False">
+            <Border Margin="16,8" BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 12" Padding="14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Registrar Ocorrência / Reclamação" TextColor="#dc2626" FontSize="14" FontAttributes="Bold" />
+                    <Entry x:Name="TxtReclamAssunto" Placeholder="Assunto (ex: Barulho, Limpeza, Iluminação...)" BackgroundColor="#f8fafc" />
+                    <Editor x:Name="TxtReclamDesc" Placeholder="Descreva o ocorrido..." HeightRequest="80" BackgroundColor="#f8fafc" />
+                    <Button Text="Enviar Reclamação" BackgroundColor="#dc2626" TextColor="White" FontAttributes="Bold" HeightRequest="40" Clicked="OnEnviarReclamClicked" />
+                </VerticalStackLayout>
+            </Border>
+
+            <CollectionView Grid.Row="1" x:Name="CvReclam">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ReclamacaoDto">
+                        <Border BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 12" Margin="16,6" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding Assunto}" TextColor="#0f172a" FontSize="14" FontAttributes="Bold" />
+                                    <Label Grid.Column="1" Text="{Binding Status}" TextColor="#dc2626" FontSize="11" FontAttributes="Bold" />
+                                </Grid>
+                                <Label Text="{Binding Descricao}" TextColor="#475569" FontSize="13" />
+                                <Label Text="{Binding Resposta, StringFormat='Parecer do Clube: &quot;{0}&quot;'}" TextColor="#0284c7" FontSize="12" FontAttributes="Italic" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+    </Grid>
+</ContentPage>

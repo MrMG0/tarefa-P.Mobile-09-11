@@ -1,0 +1,104 @@
+@page
+@model ClubNet.Web.Pages.Usuarios.IndexModel
+@{
+    ViewData["Title"] = "Gestão de Administradores & Acessos";
+    var isSuperAdmin = Model.CurrentUser?.Perfil == "SUPERADMIN";
+}
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Controle de Usuários Administrativos</h5>
+            <small class="text-muted">Presidentes, Administradores e Tesoureiros</small>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoUsuario">
+            <i class="bi bi-person-plus me-1"></i> Liberar Novo Acesso
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Perfil</th>
+                        <th>Clube Vinculado</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Usuarios)
+                    {
+                        <tr>
+                            <td class="fw-bold">@u.Nome</td>
+                            <td><code>@u.Email</code></td>
+                            <td>
+                                <span class="badge badge-role badge-@u.Perfil">@u.Perfil</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @(u.NomeClube ?? "Administração Global")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-page-handler="ToggleStatus" asp-route-id="@u.Id" class="btn btn-sm btn-outline-secondary" title="Alternar Status de Acesso">
+                                    <i class="bi bi-power"></i> Alternar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Usuário -->
+<div class="modal fade" id="modalNovoUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Criar">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Novo Usuário Administrativo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome Completo *</label>
+                        <input asp-for="NovoUsuario.Nome" class="form-control" placeholder="ex: João da Silva" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">E-mail de Acesso *</label>
+                        <input asp-for="NovoUsuario.Email" type="email" class="form-control" placeholder="joao@clubnet.com" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Senha Inicial *</label>
+                        <input asp-for="NovoUsuario.Senha" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Perfil de Acesso *</label>
+                        <select asp-for="NovoUsuario.Perfil" class="form-select" required>
+                            @if (isSuperAdmin)
+                            {
+                                <option value="PRESIDENTE">PRESIDENTE DO CLUBE</option>
+                                <option value="ADMIN">ADMINISTRADOR DO CLUBE</option>
+                                <option value="TESOUREIRO">TESOUREIRO DO CLUBE</option>
+                                <option value="SUPERADMIN">SUPERADMINISTRADOR</option>
+                            }
+                            else
+                            {
+                                <option value="ADMIN">ADMINISTRADOR DO CLUBE</option>
+                                <option value="TESOUREIRO">TESOUREIRO DO CLUBE</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Criar Acesso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ClubNet.API/ClubNet.API.csproj" />
+    <Project Path="src/ClubNet.App/ClubNet.App.csproj" />
+    <Project Path="src/ClubNet.Shared/ClubNet.Shared.csproj" />
+    <Project Path="src/ClubNet.Web/ClubNet.Web.csproj" />
+  </Folder>
+</Solution>

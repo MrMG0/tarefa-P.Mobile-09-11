@@ -1,0 +1,64 @@
+RELATORIO DE TESTES - ClubNet
+
+RESUMO
+Foi corrigida a consulta de associados que causava HTTP 500 no SQLite.
+A consulta agora carrega as entidades com consulta dividida e monta os DTOs
+em memoria, evitando a traducao de SQL APPLY, que nao e suportada pelo SQLite.
+A correcao tambem atende a pagina de Mensalidades, que consulta associados
+aprovados para o formulario de lancamento.
+
+TESTES EXECUTADOS
+
+1. Reproducao do erro antes da correcao
+- Inicializada a API em uma porta alternativa para diagnostico.
+- Login de teste na API realizado com sucesso.
+- GET /api/associados: HTTP 500.
+- GET /api/associados?situacao=APROVADO: HTTP 500.
+- GET /api/mensalidades: HTTP 200.
+- GET /api/mensalidades?situacao=ABERTA: HTTP 200.
+- Log do servidor identificou System.InvalidOperationException:
+  "Translating this query requires the SQL APPLY operation, which is not
+  supported on SQLite." A excecao ocorria na projecao das colecoes
+  Dependentes e Interesses da consulta de associados.
+
+2. Compilacao da API apos a correcao
+- Comando: dotnet build src\ClubNet.API\ClubNet.API.csproj --configuration Release --no-restore
+- Resultado: compilacao com exito, 0 erros.
+- Aviso: NU1900 ao consultar api.nuget.org, indisponivel no ambiente.
+
+3. Compilacao do site Web
+- Comando: dotnet build src\ClubNet.Web\ClubNet.Web.csproj --configuration Release --no-restore
+- Resultado: compilacao com exito, 0 avisos e 0 erros.
+
+4. Verificacao das rotas corrigidas
+- Login de teste como superadministrador efetuado.
+- GET /api/associados: OK, 2 registros.
+- GET /api/associados?situacao=APROVADO: OK, 1 registro.
+- GET /api/associados?busca=carlos: OK, 1 registro.
+- GET /api/mensalidades: OK, 3 registros.
+- GET /api/mensalidades?situacao=ABERTA: OK, 2 registros.
+
+5. Verificacao adicional das rotas da API
+As seguintes rotas GET responderam HTTP 200 usando autenticacao:
+- /api/dashboard
+- /api/clubes
+- /api/eventos
+- /api/espacos
+- /api/reservas
+- /api/solicitacoes
+- /api/reclamacoes
+- /api/usuarios
+- /api/mensalidades
+
+6. Verificacao das paginas Web
+- Login no site Web realizado com sucesso.
+- GET /Associados: HTTP 200; pagina renderizada sem mensagem de HttpRequestException/HTTP 500.
+- GET /Mensalidades: HTTP 200; pagina renderizada sem mensagem de HttpRequestException/HTTP 500.
+
+COMPILACAO DA SOLUCAO COMPLETA
+- Comando: dotnet build ClubNet.slnx --configuration Release --no-restore
+- Resultado: nao concluida por limitacoes de runtimes MAUI no ambiente.
+- Erros reportados:
+  - NETSDK1112: runtime Microsoft.NETCore.App.Runtime.win-x64 nao baixado.
+  - NETSDK1047: assets sem destino maccatalyst-arm64.
+- A restauracao/download de workloads e pacotes nao foi realizada.

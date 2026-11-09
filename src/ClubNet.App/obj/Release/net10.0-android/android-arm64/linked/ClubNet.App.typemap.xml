@@ -1,0 +1,8 @@
+<api type="release" assembly-name="ClubNet.App" mvid="478c8957b89f4de5b82eeee5fd571101">
+  <module assembly-name="ClubNet.App" mvid="478c8957b89f4de5b82eeee5fd571101" mvid-bytes="V4mMR5+45U24Lu7l/VcRAQ==">
+    <types-scratch>
+      <entry key="crc644d3533e6e636bef6/MainActivity" java-name="crc644d3533e6e636bef6/MainActivity" managed-type-name="ClubNet.App.MainActivity" token="33554441" />
+      <entry key="crc644d3533e6e636bef6/MainApplication" java-name="crc644d3533e6e636bef6/MainApplication" managed-type-name="ClubNet.App.MainApplication" token="33554442" />
+    </types-scratch>
+  </module>
+</api>

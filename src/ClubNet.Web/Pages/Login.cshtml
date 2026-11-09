@@ -1,0 +1,76 @@
+@page
+@model ClubNet.Web.Pages.LoginModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Acesso Administrativo";
+}
+
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <i class="bi bi-shield-lock display-4"></i>
+                <h3 class="fw-bold mt-2 mb-0">ClubNet</h3>
+                <small class="text-white-50">Portal Administrativo Integrado</small>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                @if (!string.IsNullOrEmpty(Model.MensagemErro))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i> @Model.MensagemErro
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">E-mail Administrativo</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input type="email" asp-for="Email" id="inputEmail" class="form-control" placeholder="admin@clubnet.com" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Senha de Acesso</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                            <input type="password" asp-for="Senha" id="inputSenha" class="form-control" placeholder="••••••••" required />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Entrar no Painel
+                    </button>
+                </form>
+
+                <hr class="my-4" />
+
+                <div class="text-center">
+                    <span class="text-muted small fw-semibold">Acessos Rápidos para Teste Acadêmico:</span>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="fillLogin('superadmin@clubnet.com', 'Admin@123')">
+                            Superadmin
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLogin('presidente.cascavel@clubnet.com', 'Admin@123')">
+                            Presidente
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="fillLogin('admin.cascavel@clubnet.com', 'Admin@123')">
+                            Admin Clube
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="fillLogin('tesoureiro.cascavel@clubnet.com', 'Admin@123')">
+                            Tesoureiro
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillLogin(email, senha) {
+        document.getElementById('inputEmail').value = email;
+        document.getElementById('inputSenha').value = senha;
+    }
+</script>

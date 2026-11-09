@@ -1,0 +1,14 @@
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\mauisplash.stamp
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\r\dotnet_bot@3x.png
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\r\dotnet_bot@2x.png
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\r\dotnet_bot.png
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\mauiimage.stamp
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\mauiimage.outputs
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\f\MauiInfo.plist
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\mauifont.stamp
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\f\OpenSans-Regular.ttf
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\resizetizer\f\OpenSans-Semibold.ttf
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\actool\_PartialAppManifest.items
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\actool\_BundleResourceWithLogicalName.items
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\coremlc\_PartialAppManifest.items
+C:\tarefaKaneko\ClubNet\src\ClubNet.App\obj\Release\net10.0-maccatalyst\maccatalyst-arm64\coremlc\_BundleResourceWithLogicalName.items

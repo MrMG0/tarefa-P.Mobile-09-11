@@ -1,0 +1,127 @@
+@page
+@model ClubNet.Web.Pages.Eventos.IndexModel
+@{
+    ViewData["Title"] = "Gestão de Eventos";
+}
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Programação de Eventos</h5>
+            <small class="text-muted">Confraternizações, esportes e atividades sociais</small>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoEvento">
+            <i class="bi bi-calendar-plus me-1"></i> Publicar Evento
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Evento</th>
+                        <th>Data e Horário</th>
+                        <th>Local</th>
+                        <th>Público-Alvo</th>
+                        <th>Clube</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Eventos.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                Nenhum evento programado.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var ev in Model.Eventos)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@ev.Titulo</div>
+                                <small class="text-muted text-truncate d-inline-block" style="max-width: 300px;">@ev.Descricao</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold"><i class="bi bi-clock me-1 text-primary"></i> @ev.DataInicio.ToString("dd/MM/yyyy HH:mm")</div>
+                                @if (ev.DataFim.HasValue)
+                                {
+                                    <small class="text-muted">até @ev.DataFim.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                }
+                            </td>
+                            <td><i class="bi bi-geo-alt text-danger me-1"></i> @(ev.Local ?? "Sede do Clube")</td>
+                            <td>
+                                @if (ev.PublicoAlvo == "PUBLICO_GERAL")
+                                {
+                                    <span class="badge bg-success">Aberto ao Público</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">Exclusivo Associados</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@ev.NomeClube</span></td>
+                            <td class="text-end">
+                                <a asp-page-handler="Deletar" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deseja desativar este evento?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Evento -->
+<div class="modal fade" id="modalNovoEvento" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Criar">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Publicar Novo Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Título do Evento *</label>
+                        <input asp-for="NovoEvento.Titulo" class="form-control" placeholder="ex: Almoço do Dia dos Pais" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Descrição</label>
+                        <textarea asp-for="NovoEvento.Descricao" class="form-control" rows="3" placeholder="Informações do cardápio, inscrições, atrações..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Início *</label>
+                            <input asp-for="NovoEvento.DataInicio" type="datetime-local" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Término (opcional)</label>
+                            <input asp-for="NovoEvento.DataFim" type="datetime-local" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Público-Alvo</label>
+                            <select asp-for="NovoEvento.PublicoAlvo" class="form-select">
+                                <option value="ASSOCIADOS">Exclusivo Associados</option>
+                                <option value="PUBLICO_GERAL">Aberto ao Público Geral</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Local</label>
+                            <input asp-for="NovoEvento.Local" class="form-control" placeholder="Salão Social Nobre" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Publicar Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

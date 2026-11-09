@@ -1,0 +1,108 @@
+@page
+@model ClubNet.Web.Pages.Espacos.IndexModel
+@{
+    ViewData["Title"] = "Gestão de Espaços do Clube";
+}
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Espaços Disponíveis para Locação e Eventos</h5>
+            <small class="text-muted">Salões, quiosques, áreas esportivas e churrasqueiras</small>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoEspaco">
+            <i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Espaço
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome do Espaço</th>
+                        <th>Descrição e Estrutura</th>
+                        <th>Capacidade Estimada</th>
+                        <th>Clube</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Espacos.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                Nenhum espaço cadastrado.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var e in Model.Espacos)
+                    {
+                        <tr>
+                            <td class="fw-bold">@e.Nome</td>
+                            <td><span class="text-muted">@e.Descricao</span></td>
+                            <td>
+                                @if (e.Capacidade.HasValue)
+                                {
+                                    <span class="badge bg-secondary"><i class="bi bi-people me-1"></i> Até @e.Capacidade pessoas</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@e.NomeClube</span></td>
+                            <td>
+                                @if (e.Ativo)
+                                {
+                                    <span class="badge bg-success">Disponível</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inativo</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-page-handler="Deletar" asp-route-id="@e.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deseja desativar este espaço?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Espaço -->
+<div class="modal fade" id="modalNovoEspaco" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Criar">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Novo Espaço para Locação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome do Espaço *</label>
+                        <input asp-for="NovoEspaco.Nome" class="form-control" placeholder="ex: Salão Social Nobre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Capacidade de Pessoas</label>
+                        <input asp-for="NovoEspaco.Capacidade" type="number" class="form-control" placeholder="ex: 200" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Descrição e Equipamentos</label>
+                        <textarea asp-for="NovoEspaco.Descricao" class="form-control" rows="3" placeholder="Climatizado, cozinha completa, churrasqueira, banheiros..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Salvar Espaço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

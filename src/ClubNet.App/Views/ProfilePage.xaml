@@ -10,7 +10,7 @@
         <VerticalStackLayout Spacing="16" Padding="20">
 
             <!-- Card Dados Pessoais -->
-            <Border BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 14" Padding="18">
+            <Border x:Name="CardInteresses" BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 14" Padding="18">
                 <VerticalStackLayout Spacing="10">
                     <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
                         <Label Text="👤" FontSize="26" />
@@ -39,7 +39,7 @@
             </Border>
 
             <!-- Card Interesses -->
-            <Border BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 14" Padding="18">
+            <Border x:Name="CardDependentes" BackgroundColor="White" Stroke="#e2e8f0" StrokeShape="RoundRectangle 14" Padding="18">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Meus Interesses no Clube" TextColor="#0f172a" FontSize="14" FontAttributes="Bold" />
                     <FlexLayout x:Name="FlexInteresses" Wrap="Wrap" JustifyContent="Start">
@@ -64,6 +64,14 @@
                                 <Entry x:Name="TxtDepParentesco" Placeholder="Parentesco (Filho, Cônjuge...)" BackgroundColor="White" />
                                 <Entry Grid.Column="1" x:Name="TxtDepCpf" Placeholder="CPF (opcional)" BackgroundColor="White" />
                             </Grid>
+                            <HorizontalStackLayout Spacing="8">
+                                <Switch x:Name="SwitchDepAcesso" Toggled="OnDepAccessToggled" />
+                                <Label Text="Criar acesso próprio ao aplicativo" VerticalOptions="Center" TextColor="#334155" FontSize="12" />
+                            </HorizontalStackLayout>
+                            <VerticalStackLayout x:Name="PanelDepAcesso" IsVisible="False" Spacing="8">
+                                <Entry x:Name="TxtDepEmail" Placeholder="E-mail de acesso" Keyboard="Email" BackgroundColor="White" />
+                                <Entry x:Name="TxtDepSenha" Placeholder="Senha de acesso (mínimo 6 caracteres)" IsPassword="True" BackgroundColor="White" />
+                            </VerticalStackLayout>
                             <Button Text="Cadastrar Dependente" BackgroundColor="#0284c7" TextColor="White" FontAttributes="Bold" HeightRequest="38" Clicked="OnAddDependenteClicked" />
                         </VerticalStackLayout>
                     </Border>

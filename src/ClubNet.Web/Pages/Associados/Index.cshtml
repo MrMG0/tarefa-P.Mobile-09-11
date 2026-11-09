@@ -75,6 +75,19 @@
                                 <span class="badge bg-light text-dark border">
                                     @(a.TipoAssociado.Replace("_", " "))
                                 </span>
+                                <div class="small text-muted mt-1">@(a.TemDireitoVoto ? "Com direito a voto" : "Sem direito a voto")</div>
+                                <form method="post" asp-page-handler="AtualizarCategoria" class="d-flex gap-1 mt-2">
+                                    <input type="hidden" name="id" value="@a.Id" />
+                                    <select name="tipoAssociado" class="form-select form-select-sm" aria-label="Categoria de @a.Nome">
+                                        <option value="ASSOCIADO_FUNDADOR" selected="@(a.TipoAssociado == "ASSOCIADO_FUNDADOR" ? "selected" : null)">Fundador</option>
+                                        <option value="ASSOCIADO" selected="@(a.TipoAssociado == "ASSOCIADO" ? "selected" : null)">Associado</option>
+                                        <option value="CONVIDADO" selected="@(a.TipoAssociado == "CONVIDADO" ? "selected" : null)">Convidado</option>
+                                        <option value="SIMPATIZANTE" selected="@(a.TipoAssociado == "SIMPATIZANTE" ? "selected" : null)">Simpatizante</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Salvar categoria" aria-label="Salvar categoria de @a.Nome">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
                             </td>
                             <td>
                                 <div class="small">@a.Telefone</div>

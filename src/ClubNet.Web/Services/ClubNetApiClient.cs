@@ -26,6 +26,7 @@ public interface IClubNetApiClient
     // Associados
     Task<List<AssociadoDto>> GetAssociadosAsync(int? idClube = null, string? situacao = null, string? busca = null);
     Task<AssociadoDto?> GetAssociadoByIdAsync(int id);
+    Task<bool> UpdateAssociadoAsync(int id, UpdateAssociadoDto dto);
     Task<bool> AprovarAssociadoAsync(int id);
     Task<bool> RejeitarAssociadoAsync(int id);
     Task<bool> CreateDependenteAsync(int associadoId, CreateDependenteDto dto);
@@ -195,6 +196,13 @@ public class ClubNetApiClient : IClubNetApiClient
     {
         SetAuthHeader();
         return await _http.GetFromJsonAsync<AssociadoDto>($"/api/associados/{id}", _jsonOptions);
+    }
+
+    public async Task<bool> UpdateAssociadoAsync(int id, UpdateAssociadoDto dto)
+    {
+        SetAuthHeader();
+        var response = await _http.PutAsJsonAsync($"/api/associados/{id}", dto);
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> AprovarAssociadoAsync(int id)

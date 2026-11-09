@@ -18,6 +18,7 @@ public interface IApiService
 
     Task<List<ClubeDto>> GetClubesAsync();
     Task<AssociadoDto?> GetMeuPerfilAsync();
+    Task<DependenteDto?> GetMeuDependenteAsync();
     Task<List<DependenteDto>> GetMeusDependentesAsync();
     Task<bool> AddDependenteAsync(CreateDependenteDto dto);
     Task<List<MensalidadeDto>> GetMinhasMensalidadesAsync();
@@ -140,6 +141,19 @@ public class ApiService : IApiService
         {
             return null;
         }
+    }
+
+    public async Task<DependenteDto?> GetMeuDependenteAsync()
+    {
+        if (CurrentUser?.IdDependente is not int dependentId || CurrentUser.IdAssociado is not int associadoId)
+        {
+            return null;
+        }
+
+        SetAuthHeader();
+        var dependentes = await _http.GetFromJsonAsync<List<DependenteDto>>(
+            $"{BaseUrl}/api/associados/{associadoId}/dependentes", _jsonOptions);
+        return dependentes?.FirstOrDefault(d => d.Id == dependentId);
     }
 
     public async Task<List<DependenteDto>> GetMeusDependentesAsync()

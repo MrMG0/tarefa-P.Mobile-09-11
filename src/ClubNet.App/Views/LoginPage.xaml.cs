@@ -1,4 +1,5 @@
 using ClubNet.App.Services;
+using ClubNet.Shared.Constants;
 using ClubNet.Shared.DTOs;
 
 namespace ClubNet.App.Views;
@@ -19,6 +20,8 @@ public partial class LoginPage : ContentPage
         base.OnAppearing();
         _clubes = await _apiService.GetClubesAsync();
         PickerClubes.ItemsSource = _clubes;
+        PickerTipoAssociado.ItemsSource = new[] { "Convidado (sem direito a voto)", "Simpatizante (sem direito a voto)" };
+        PickerTipoAssociado.SelectedIndex = 0;
         if (_clubes.Count > 0)
         {
             PickerClubes.SelectedIndex = 0;
@@ -121,6 +124,9 @@ public partial class LoginPage : ContentPage
             Cpf = cpf,
             Email = email,
             Senha = senha,
+            TipoAssociado = PickerTipoAssociado.SelectedIndex == 1
+                ? TiposAssociado.Simpatizante
+                : TiposAssociado.Convidado,
             Telefone = TxtCadTelefone.Text?.Trim(),
             InteressesIniciais = interesses
         };
@@ -132,16 +138,9 @@ public partial class LoginPage : ContentPage
         if (result.Sucesso)
         {
             await DisplayAlert("Solicitação Enviada", result.Mensagem, "OK");
-            if (Application.Current?.Windows.Count > 0)
-            {
-                Application.Current.Windows[0].Page = new AppShell();
-            }
-            else if (Application.Current != null)
-            {
-#pragma warning disable CS0618
-                Application.Current.MainPage = new AppShell();
-#pragma warning restore CS0618
-            }
+            TxtCadSenha.Text = "";
+            TxtLoginEmail.Text = email;
+            OnAbaLoginClicked(sender, e);
         }
         else
         {

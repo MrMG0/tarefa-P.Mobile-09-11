@@ -9,3 +9,4 @@ C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\refint\ClubNet.Shared.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.pdb
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ref\ClubNet.Shared.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.sourcelink.json

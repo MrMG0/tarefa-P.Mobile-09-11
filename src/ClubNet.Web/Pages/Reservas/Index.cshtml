@@ -4,16 +4,68 @@
     ViewData["Title"] = "Agenda e Aprovação de Reservas";
 }
 
+<style>
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .calendar-day { min-height: 120px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: .5rem; }
+    .calendar-day-muted { background-color: #f8fafc; color: #94a3b8; }
+    .calendar-booking { display: block; overflow: hidden; margin-top: .35rem; padding: .25rem .35rem; border-radius: .35rem; background: #e0f2fe; color: #075985; font-size: .72rem; line-height: 1.2; }
+    @@media (max-width: 767.98px) {
+        .calendar-day { min-height: 78px; padding: .25rem; font-size: .75rem; }
+        .calendar-booking { font-size: .62rem; }
+    }
+</style>
+
 <div class="card border-0 shadow-sm rounded-3 mb-4">
     <div class="card-body p-3">
         <label class="form-label small text-muted mb-1">Filtrar por Status da Reserva:</label>
         <div class="btn-group" role="group">
-            <a asp-page="/Reservas/Index" class="btn @(string.IsNullOrEmpty(Model.Status) ? "btn-primary" : "btn-outline-primary")">Todas</a>
-            <a asp-page="/Reservas/Index" asp-route-status="PENDENTE" class="btn @(Model.Status == "PENDENTE" ? "btn-warning" : "btn-outline-warning")">Pendentes de Aprovação</a>
-            <a asp-page="/Reservas/Index" asp-route-status="APROVADA" class="btn @(Model.Status == "APROVADA" ? "btn-success" : "btn-outline-success")">Aprovadas</a>
-            <a asp-page="/Reservas/Index" asp-route-status="REJEITADA" class="btn @(Model.Status == "REJEITADA" ? "btn-danger" : "btn-outline-danger")">Rejeitadas</a>
-            <a asp-page="/Reservas/Index" asp-route-status="CANCELADA" class="btn @(Model.Status == "CANCELADA" ? "btn-secondary" : "btn-outline-secondary")">Canceladas</a>
+            <a asp-page="/Reservas/Index" asp-route-mes="@Model.Mes" class="btn @(string.IsNullOrEmpty(Model.Status) ? "btn-primary" : "btn-outline-primary")">Todas</a>
+            <a asp-page="/Reservas/Index" asp-route-status="PENDENTE" asp-route-mes="@Model.Mes" class="btn @(Model.Status == "PENDENTE" ? "btn-warning" : "btn-outline-warning")">Pendentes de Aprovação</a>
+            <a asp-page="/Reservas/Index" asp-route-status="APROVADA" asp-route-mes="@Model.Mes" class="btn @(Model.Status == "APROVADA" ? "btn-success" : "btn-outline-success")">Aprovadas</a>
+            <a asp-page="/Reservas/Index" asp-route-status="REJEITADA" asp-route-mes="@Model.Mes" class="btn @(Model.Status == "REJEITADA" ? "btn-danger" : "btn-outline-danger")">Rejeitadas</a>
+            <a asp-page="/Reservas/Index" asp-route-status="CANCELADA" asp-route-mes="@Model.Mes" class="btn @(Model.Status == "CANCELADA" ? "btn-secondary" : "btn-outline-secondary")">Canceladas</a>
         </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white py-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <a asp-page="/Reservas/Index" asp-route-mes="@Model.MesAnterior" asp-route-status="@Model.Status" class="btn btn-sm btn-outline-secondary" aria-label="Mês anterior">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <h5 class="fw-bold mb-0 text-capitalize">@Model.MesAtual.ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-BR"))</h5>
+        <a asp-page="/Reservas/Index" asp-route-mes="@Model.ProximoMes" asp-route-status="@Model.Status" class="btn btn-sm btn-outline-secondary" aria-label="Próximo mês">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+        <form method="get" class="d-flex gap-2 ms-md-auto">
+            <input type="hidden" name="Status" value="@Model.Status" />
+            <input type="month" name="Mes" value="@Model.Mes" class="form-control form-control-sm" aria-label="Selecionar mês" />
+            <button type="submit" class="btn btn-sm btn-primary">Ir</button>
+        </form>
+    </div>
+    <div class="calendar-grid text-center fw-semibold small bg-light">
+        @foreach (var diaSemana in new[] { "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb" })
+        {
+            <div class="py-2 border-bottom">@diaSemana</div>
+        }
+    </div>
+    <div class="calendar-grid">
+        @foreach (var dia in Model.DiasCalendario)
+        {
+            <div class="calendar-day @(dia.NoMesAtual ? "" : "calendar-day-muted")">
+                <div class="fw-semibold">@dia.Data.Day</div>
+                @foreach (var reserva in dia.Reservas)
+                {
+                    <span class="calendar-booking" title="@reserva.NomeEspaco - @reserva.Status">
+                        @reserva.DataHoraInicio.ToString("HH:mm") @reserva.NomeEspaco
+                        @if (reserva.DataHoraInicio.Date != reserva.DataHoraFim.Date)
+                        {
+                            <span>(período)</span>
+                        }
+                    </span>
+                }
+            </div>
+        }
     </div>
 </div>
 
@@ -87,16 +139,16 @@
                             <td class="text-end">
                                 @if (r.Status == "PENDENTE")
                                 {
-                                    <a asp-page-handler="Aprovar" asp-route-id="@r.Id" asp-route-status="@Model.Status" class="btn btn-sm btn-success me-1" title="Aprovar Reserva">
+                                    <a asp-page-handler="Aprovar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-success me-1" title="Aprovar Reserva">
                                         <i class="bi bi-check-lg"></i> Aprovar
                                     </a>
-                                    <a asp-page-handler="Rejeitar" asp-route-id="@r.Id" asp-route-status="@Model.Status" class="btn btn-sm btn-outline-danger" title="Rejeitar Reserva">
+                                    <a asp-page-handler="Rejeitar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-outline-danger" title="Rejeitar Reserva">
                                         <i class="bi bi-x-lg"></i> Rejeitar
                                     </a>
                                 }
                                 else if (r.Status == "APROVADA")
                                 {
-                                    <a asp-page-handler="Cancelar" asp-route-id="@r.Id" asp-route-status="@Model.Status" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Deseja cancelar esta reserva confirmada?')">
+                                    <a asp-page-handler="Cancelar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Deseja cancelar esta reserva confirmada?')">
                                         <i class="bi bi-slash-circle"></i> Cancelar
                                     </a>
                                 }

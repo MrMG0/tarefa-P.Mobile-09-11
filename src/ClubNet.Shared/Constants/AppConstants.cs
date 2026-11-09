@@ -27,6 +27,11 @@ public static class TiposAssociado
     public const string AssociadoFundador = "ASSOCIADO_FUNDADOR";
     public const string Associado = "ASSOCIADO";
     public const string Convidado = "CONVIDADO";
+    public const string Simpatizante = "SIMPATIZANTE";
+
+    public static bool TemDireitoVoto(string? tipoAssociado) =>
+        string.Equals(tipoAssociado, AssociadoFundador, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(tipoAssociado, Associado, StringComparison.OrdinalIgnoreCase);
 }
 
 public static class SituacaoMensalidade

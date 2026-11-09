@@ -103,17 +103,25 @@
                         BackgroundColor="White"
                         ItemDisplayBinding="{Binding Nome}" />
 
-                <Label Text="Data da Reserva *" TextColor="#334155" FontSize="13" FontAttributes="Bold" />
-                <DatePicker x:Name="DpDataReserva" BackgroundColor="White" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Data de Início *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <DatePicker x:Name="DpDataInicio" BackgroundColor="White" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label Text="Data de Término *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <DatePicker x:Name="DpDataFim" BackgroundColor="White" />
+                    </VerticalStackLayout>
+                </Grid>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Horário de Início *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <Label Text="Hora de Início *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
                         <TimePicker x:Name="TpInicio" Time="12:00:00" BackgroundColor="White" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="1" Spacing="4">
-                        <Label Text="Horário de Término *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
+                        <Label Text="Hora de Término *" TextColor="#334155" FontSize="12" FontAttributes="Bold" />
                         <TimePicker x:Name="TpFim" Time="18:00:00" BackgroundColor="White" />
                     </VerticalStackLayout>
                 </Grid>

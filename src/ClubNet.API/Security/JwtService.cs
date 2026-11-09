@@ -15,7 +15,7 @@ public class JwtService : IJwtService
         _settings = settings.Value;
     }
 
-    public string GenerateToken(int userId, string nome, string email, string perfil, int? idClube, int? idAssociado)
+    public string GenerateToken(int userId, string nome, string email, string perfil, int? idClube, int? idAssociado, int? idDependente = null)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_settings.SecretKey);
@@ -38,6 +38,11 @@ public class JwtService : IJwtService
         if (idAssociado.HasValue)
         {
             claims.Add(new Claim("id_associado", idAssociado.Value.ToString()));
+        }
+
+        if (idDependente.HasValue)
+        {
+            claims.Add(new Claim("id_dependente", idDependente.Value.ToString()));
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor

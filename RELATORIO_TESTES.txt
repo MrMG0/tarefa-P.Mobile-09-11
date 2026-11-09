@@ -62,3 +62,43 @@ COMPILACAO DA SOLUCAO COMPLETA
   - NETSDK1112: runtime Microsoft.NETCore.App.Runtime.win-x64 nao baixado.
   - NETSDK1047: assets sem destino maccatalyst-arm64.
 - A restauracao/download de workloads e pacotes nao foi realizada.
+
+ATUALIZACAO - REQUISITOS ADICIONAIS DO ENUNCIADO
+
+ALTERACOES IMPLEMENTADAS
+- Incluida a categoria SIMPATIZANTE e indicador de direito a voto para
+  fundador/associado aprovado. Convidado, simpatizante e cadastros pendentes
+  nao recebem direito a voto.
+- O cadastro pelo app oferece Convidado ou Simpatizante e permanece bloqueado
+  ate a aprovacao; a tela nao navega para as areas autenticadas apos o pedido.
+- Associados aprovados podem criar contas de acesso do app para dependentes.
+  O login do dependente fica vinculado ao titular; consultas financeiras e
+  operacionais usam os dados do titular e as permissoes de leitura ficam
+  limitadas ao vinculo. Acoes administrativas e edicao de interesses sao
+  negadas ao dependente.
+- Reservas do app agora aceitam data e hora inicial/final em dias diferentes.
+- A pagina Web de reservas mostra calendario mensal navegavel, com periodos
+  de reservas que atravessam mais de um dia.
+- O formulario Web de cadastro de clube inclui o bairro.
+- Mantida a quantidade atual de clubes de exemplo, conforme confirmado pelo
+  usuario: um clube em Foz e um em Guaira.
+- Nao foram adicionados os campos pessoais extras ao formulario de cadastro
+  do associado, conforme solicitado.
+
+TESTES ADICIONAIS
+- API Release: compilacao com exito, 0 erros. NU1900 permaneceu por
+  indisponibilidade de api.nuget.org ao consultar vulnerabilidades.
+- Web Release: compilacao com exito, 0 avisos e 0 erros.
+- App Android Release (net10.0-android): compilacao com exito, 0 erros;
+  avisos existentes de APIs obsoletas/nulabilidade e NU1900.
+- Fluxo de dependente: titular criou conta; dependente autenticou com perfil
+  DEPENDENTE e consultou seu vinculo e as mensalidades do titular.
+- Autorizacao: lista geral de associados HTTP 403; vinculo correto HTTP 200;
+  vinculo de outro titular HTTP 403; tentativa de editar interesses HTTP 403.
+- Categoria: associado fundador aprovado retornou TemDireitoVoto=true;
+  simpatizante pendente retornou false e login foi negado com HTTP 401.
+- Reserva com inicio em 31/10/2031 e termino em 01/11/2031 foi aceita pela API.
+- Paginas Web autenticadas /Associados, /Clubes e /Reservas?mes=2031-10
+  responderam HTTP 200; calendario e campos de bairro/categoria foram
+  encontrados no HTML renderizado.
+- Mes invalido no calendario foi rejeitado com HTTP 400.

@@ -1,0 +1,5 @@
+Especificacao_Projeto_Gestao_Clubes.md implemente o projeto descrito, faça na ordem API, site, app
+
+nesse projeto, ao testar o site, as abas associados e mensalidades dao erro, aproveite e procure identificar se ha mais erros
+
+reavalie o projeto usando de base o enunciado. (o q esta escrito no portal da udc)

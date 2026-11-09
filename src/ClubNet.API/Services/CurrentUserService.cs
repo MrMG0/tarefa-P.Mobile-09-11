@@ -12,6 +12,7 @@ public interface ICurrentUserService
     string? Perfil { get; }
     int? ClubeId { get; }
     int? AssociadoId { get; }
+    int? DependenteId { get; }
 
     bool IsSuperAdmin { get; }
     bool IsPresidente { get; }
@@ -73,11 +74,22 @@ public class CurrentUserService : ICurrentUserService
         }
     }
 
+    public int? DependenteId
+    {
+        get
+        {
+            var claim = User?.FindFirst("id_dependente")?.Value;
+            return int.TryParse(claim, out var id) ? id : null;
+        }
+    }
+
     public bool IsSuperAdmin => string.Equals(Perfil, Perfis.SuperAdmin, StringComparison.OrdinalIgnoreCase);
     public bool IsPresidente => string.Equals(Perfil, Perfis.Presidente, StringComparison.OrdinalIgnoreCase);
     public bool IsAdmin => string.Equals(Perfil, Perfis.Admin, StringComparison.OrdinalIgnoreCase);
     public bool IsTesoureiro => string.Equals(Perfil, Perfis.Tesoureiro, StringComparison.OrdinalIgnoreCase);
-    public bool IsAssociado => string.Equals(Perfil, Perfis.Associado, StringComparison.OrdinalIgnoreCase);
+    public bool IsAssociado =>
+        string.Equals(Perfil, Perfis.Associado, StringComparison.OrdinalIgnoreCase) ||
+        IsDependente;
     public bool IsDependente => string.Equals(Perfil, Perfis.Dependente, StringComparison.OrdinalIgnoreCase);
 
     public bool CanManageClub(int targetClubeId)

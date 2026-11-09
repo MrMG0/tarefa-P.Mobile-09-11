@@ -30,6 +30,7 @@ public class UserInfoDto
     public int? IdClube { get; set; }
     public string? NomeClube { get; set; }
     public int? IdAssociado { get; set; }
+    public int? IdDependente { get; set; }
 }
 
 public class RegisterMemberDto
@@ -60,7 +61,7 @@ public class RegisterMemberDto
     public string? EstadoCivil { get; set; }
     public string? Telefone { get; set; }
     public DateTime? DataNascimento { get; set; }
-    public string? TipoAssociado { get; set; } = "ASSOCIADO";
+    public string? TipoAssociado { get; set; } = "CONVIDADO";
     public List<string>? InteressesIniciais { get; set; }
 }
 
@@ -134,6 +135,7 @@ public class AssociadoDto
     public string? Email { get; set; }
     public DateTime? DataNascimento { get; set; }
     public string TipoAssociado { get; set; } = string.Empty;
+    public bool TemDireitoVoto { get; set; }
     public string SituacaoCadastro { get; set; } = string.Empty;
     public DateTime DataCadastro { get; set; }
     public int? IdUsuario { get; set; }
@@ -186,6 +188,8 @@ public class CreateDependenteDto
     public string? Parentesco { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
+    public bool CriarAcessoApp { get; set; }
+    public string? SenhaAcesso { get; set; }
 }
 
 // --- EVENTO ---

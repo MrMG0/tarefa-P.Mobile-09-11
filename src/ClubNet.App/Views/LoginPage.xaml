@@ -101,6 +101,12 @@
                                 BackgroundColor="#0f172a"
                                 ItemDisplayBinding="{Binding Nome}" />
 
+                        <Picker x:Name="PickerTipoAssociado"
+                                Title="Categoria pretendida"
+                                TextColor="White"
+                                TitleColor="#64748b"
+                                BackgroundColor="#0f172a" />
+
                         <Entry x:Name="TxtCadNome"
                                Placeholder="Nome Completo *"
                                PlaceholderColor="#64748b"

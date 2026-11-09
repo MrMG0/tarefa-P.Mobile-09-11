@@ -60,7 +60,7 @@ dotnet run --project src/ClubNet.Web/ClubNet.Web.csproj --urls http://localhost:
 - O site possui botões de login rápido na tela de login para testar instantaneamente como Superadmin, Presidente, Administrador ou Tesoureiro.
 - **Funcionalidades do Site:**
   - **Superadministrador:** Cadastrar novos clubes, listar unidades, ativar/desativar clubes, criar presidentes.
-  - **Presidente / Administrador:** Dashboard com KPIs, aprovação/rejeição de pedidos de associação com 1 clique, gerenciamento de dependentes, cadastro e cancelamento de eventos, cadastro de espaços e aprovação/rejeição de reservas na agenda, e fila de atendimento (solicitações e reclamações de ouvidoria com parecer).
+  - **Presidente / Administrador:** Dashboard com KPIs, aprovação/rejeição de pedidos de associação com 1 clique, classificação dos associados como fundador, associado, convidado ou simpatizante (com indicação de direito a voto), gerenciamento de dependentes, cadastro e cancelamento de eventos, cadastro de espaços, calendário mensal com reservas que podem atravessar dias e fila de atendimento (solicitações e reclamações de ouvidoria com parecer).
   - **Tesoureiro:** Painel financeiro, consulta de mensalidades com filtros (Abertas, Pagas, Vencidas), lançamento de novas mensalidades e quitação/baixa com 1 clique.
 
 ---
@@ -77,7 +77,9 @@ Em outro terminal:
   ```
 - O app conecta automaticamente na API:
   - No emulador Android, utiliza `http://10.0.2.2:5000` (mapeamento nativo para o localhost do computador host).
-  - Possui botões de preenchimento rápido para testar a experiência do associado Carlos (aprovado) ou Marcos (em análise), além de permitir cadastrar novas solicitações de associação com seleção de clube e interesses.
+  - Possui botões de preenchimento rápido para testar a experiência do associado Carlos (aprovado) ou Marcos (em análise), além de permitir solicitar associação como convidado ou simpatizante, com aprovação obrigatória antes do primeiro acesso.
+  - Associados titulares podem criar contas de acesso ao app para dependentes.
+  - Reservas permitem informar datas e horários de início e término em dias diferentes.
 
 ---
 

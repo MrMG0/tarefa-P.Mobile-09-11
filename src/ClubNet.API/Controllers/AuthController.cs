@@ -49,28 +49,27 @@ public class AuthController : ControllerBase
         // Buscar id do associado vinculado, se existir
         var associado = await _db.Associados
             .FirstOrDefaultAsync(a => a.IdUsuario == usuario.Id || (usuario.IdClube.HasValue && a.Email == usuario.Email && a.IdClube == usuario.IdClube));
+        Dependente? dependente = null;
+
+        if (usuario.Perfil == Perfis.Dependente && usuario.IdClube.HasValue)
+        {
+            dependente = await _db.Dependentes
+                .Include(d => d.Associado)
+                .FirstOrDefaultAsync(d => d.Email == usuario.Email && d.Associado!.IdClube == usuario.IdClube);
+            if (dependente?.Associado == null || dependente.Associado.SituacaoCadastro != SituacaoCadastro.Aprovado)
+            {
+                return Unauthorized(new LoginResponseDto { Sucesso = false, Mensagem = "A conta do dependente não está vinculada a um associado aprovado." });
+            }
+
+            associado = dependente.Associado;
+        }
 
         // Se for perfil associado e o cadastro estiver pendente ou rejeitado
         if (usuario.Perfil == Perfis.Associado && associado != null)
         {
             if (associado.SituacaoCadastro == SituacaoCadastro.Pendente)
             {
-                return Ok(new LoginResponseDto
-                {
-                    Sucesso = true,
-                    Mensagem = "Sua solicitação de associação ainda está em análise pela diretoria.",
-                    Token = _jwtService.GenerateToken(usuario.Id, usuario.Nome, usuario.Email, usuario.Perfil, usuario.IdClube, associado.Id),
-                    Usuario = new UserInfoDto
-                    {
-                        Id = usuario.Id,
-                        Nome = usuario.Nome,
-                        Email = usuario.Email,
-                        Perfil = usuario.Perfil,
-                        IdClube = usuario.IdClube,
-                        NomeClube = usuario.Clube?.Nome,
-                        IdAssociado = associado.Id
-                    }
-                });
+                return Unauthorized(new LoginResponseDto { Sucesso = false, Mensagem = "Sua solicitação de associação ainda está em análise pela diretoria." });
             }
             if (associado.SituacaoCadastro == SituacaoCadastro.Rejeitado)
             {
@@ -84,7 +83,8 @@ public class AuthController : ControllerBase
             usuario.Email,
             usuario.Perfil,
             usuario.IdClube,
-            associado?.Id
+            associado?.Id,
+            dependente?.Id
         );
 
         return Ok(new LoginResponseDto
@@ -100,7 +100,8 @@ public class AuthController : ControllerBase
                 Perfil = usuario.Perfil,
                 IdClube = usuario.IdClube,
                 NomeClube = usuario.Clube?.Nome,
-                IdAssociado = associado?.Id
+                IdAssociado = associado?.Id,
+                IdDependente = dependente?.Id
             }
         });
     }
@@ -112,6 +113,14 @@ public class AuthController : ControllerBase
         if (clube == null || !clube.Ativo)
         {
             return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "Clube selecionado inválido ou inativo." });
+        }
+
+        var tipoAssociado = string.IsNullOrWhiteSpace(request.TipoAssociado)
+            ? TiposAssociado.Convidado
+            : request.TipoAssociado.Trim().ToUpperInvariant();
+        if (tipoAssociado != TiposAssociado.Convidado && tipoAssociado != TiposAssociado.Simpatizante)
+        {
+            return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "No cadastro pelo aplicativo, selecione Convidado ou Simpatizante." });
         }
 
         var emailNormalizado = request.Email.Trim().ToLower();
@@ -156,7 +165,7 @@ public class AuthController : ControllerBase
             EstadoCivil = request.EstadoCivil,
             Telefone = request.Telefone?.Trim(),
             DataNascimento = request.DataNascimento,
-            TipoAssociado = string.IsNullOrWhiteSpace(request.TipoAssociado) ? TiposAssociado.Associado : request.TipoAssociado,
+            TipoAssociado = tipoAssociado,
             SituacaoCadastro = SituacaoCadastro.Pendente,
             DataCadastro = DateTime.UtcNow,
             IdUsuario = usuario.Id
@@ -178,23 +187,10 @@ public class AuthController : ControllerBase
             await _db.SaveChangesAsync();
         }
 
-        var token = _jwtService.GenerateToken(usuario.Id, usuario.Nome, usuario.Email, usuario.Perfil, usuario.IdClube, associado.Id);
-
         return Ok(new LoginResponseDto
         {
             Sucesso = true,
             Mensagem = "Solicitação de associação enviada com sucesso! Aguarde a análise da diretoria.",
-            Token = token,
-            Usuario = new UserInfoDto
-            {
-                Id = usuario.Id,
-                Nome = usuario.Nome,
-                Email = usuario.Email,
-                Perfil = usuario.Perfil,
-                IdClube = usuario.IdClube,
-                NomeClube = clube.Nome,
-                IdAssociado = associado.Id
-            }
         });
     }
 
@@ -214,6 +210,9 @@ public class AuthController : ControllerBase
 
         var associado = await _db.Associados
             .FirstOrDefaultAsync(a => a.IdUsuario == usuario.Id || (usuario.IdClube.HasValue && a.Email == usuario.Email && a.IdClube == usuario.IdClube));
+        var dependente = usuario.Perfil == Perfis.Dependente
+            ? await _db.Dependentes.FirstOrDefaultAsync(d => d.Email == usuario.Email && d.Associado!.IdClube == usuario.IdClube)
+            : null;
 
         return Ok(new UserInfoDto
         {
@@ -223,7 +222,8 @@ public class AuthController : ControllerBase
             Perfil = usuario.Perfil,
             IdClube = usuario.IdClube,
             NomeClube = usuario.Clube?.Nome,
-            IdAssociado = associado?.Id
+            IdAssociado = dependente?.IdAssociado ?? associado?.Id,
+            IdDependente = dependente?.Id
         });
     }
 }

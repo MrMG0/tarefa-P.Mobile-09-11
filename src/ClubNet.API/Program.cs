@@ -2,9 +2,16 @@ using System.Text.Json.Serialization;
 using ClubNet.API.Data;
 using ClubNet.API.Security;
 using ClubNet.API.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddAuthentication(options => options.DefaultForbidScheme = ApiStatusCodeAuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, ApiStatusCodeAuthenticationHandler>(
+        ApiStatusCodeAuthenticationHandler.SchemeName,
+        _ => { });
 
 // Controllers & JSON
 builder.Services.AddControllers()

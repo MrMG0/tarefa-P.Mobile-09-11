@@ -21,11 +21,29 @@ public partial class ProfilePage : ContentPage
 
     private async Task CarregarPerfil()
     {
+        if (_apiService.CurrentUser?.Perfil == "DEPENDENTE")
+        {
+            var dependente = await _apiService.GetMeuDependenteAsync();
+            if (dependente == null) return;
+
+            LblNome.Text = dependente.Nome;
+            LblCategoria.Text = $"Dependente de {dependente.NomeAssociado}";
+            LblCpf.Text = dependente.Cpf ?? "Não informado";
+            LblEmail.Text = dependente.Email ?? "Não informado";
+            LblTelefone.Text = dependente.Telefone ?? "Não informado";
+            LblSituacao.Text = dependente.Ativo ? "Ativo" : "Inativo";
+            CardInteresses.IsVisible = false;
+            CardDependentes.IsVisible = false;
+            return;
+        }
+
+        CardInteresses.IsVisible = true;
+        CardDependentes.IsVisible = true;
         var perfil = await _apiService.GetMeuPerfilAsync();
         if (perfil != null)
         {
             LblNome.Text = perfil.Nome;
-            LblCategoria.Text = perfil.TipoAssociado.Replace("_", " ");
+            LblCategoria.Text = $"{perfil.TipoAssociado.Replace("_", " ")} - {(perfil.TemDireitoVoto ? "com direito a voto" : "sem direito a voto")}";
             LblCpf.Text = perfil.Cpf;
             LblEmail.Text = perfil.Email ?? "Não informado";
             LblTelefone.Text = perfil.Telefone ?? "Não informado";
@@ -84,6 +102,11 @@ public partial class ProfilePage : ContentPage
         }
     }
 
+    private void OnDepAccessToggled(object? sender, ToggledEventArgs e)
+    {
+        PanelDepAcesso.IsVisible = e.Value;
+    }
+
     private async void OnAddDependenteClicked(object sender, EventArgs e)
     {
         var nome = TxtDepNome.Text?.Trim();
@@ -92,21 +115,35 @@ public partial class ProfilePage : ContentPage
             await DisplayAlert("Atenção", "Informe o nome do dependente.", "OK");
             return;
         }
+        if (SwitchDepAcesso.IsToggled &&
+            (string.IsNullOrWhiteSpace(TxtDepEmail.Text) || string.IsNullOrWhiteSpace(TxtDepSenha.Text) || TxtDepSenha.Text.Length < 6))
+        {
+            await DisplayAlert("Atenção", "Informe um e-mail e uma senha de pelo menos 6 caracteres para o acesso ao app.", "OK");
+            return;
+        }
 
         var dto = new CreateDependenteDto
         {
             Nome = nome,
             Parentesco = TxtDepParentesco.Text?.Trim() ?? "Outro",
-            Cpf = TxtDepCpf.Text?.Trim()
+            Cpf = TxtDepCpf.Text?.Trim(),
+            Email = TxtDepEmail.Text?.Trim(),
+            CriarAcessoApp = SwitchDepAcesso.IsToggled,
+            SenhaAcesso = SwitchDepAcesso.IsToggled ? TxtDepSenha.Text : null
         };
 
         var sucesso = await _apiService.AddDependenteAsync(dto);
         if (sucesso)
         {
-            await DisplayAlert("Sucesso", "Dependente cadastrado com sucesso!", "OK");
+            await DisplayAlert("Sucesso", SwitchDepAcesso.IsToggled
+                ? "Dependente cadastrado. Ele já pode entrar no aplicativo com o e-mail e a senha informados."
+                : "Dependente cadastrado com sucesso!", "OK");
             TxtDepNome.Text = "";
             TxtDepParentesco.Text = "";
             TxtDepCpf.Text = "";
+            TxtDepEmail.Text = "";
+            TxtDepSenha.Text = "";
+            SwitchDepAcesso.IsToggled = false;
             await CarregarPerfil();
         }
         else

@@ -71,3 +71,4 @@ C:\tarefaKaneko\ClubNet\src\ClubNet.API\obj\Debug\net10.0\refint\ClubNet.API.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.API\obj\Debug\net10.0\ClubNet.API.pdb
 C:\tarefaKaneko\ClubNet\src\ClubNet.API\obj\Debug\net10.0\ClubNet.API.genruntimeconfig.cache
 C:\tarefaKaneko\ClubNet\src\ClubNet.API\obj\Debug\net10.0\ref\ClubNet.API.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.API\obj\Debug\net10.0\ClubNet.API.sourcelink.json

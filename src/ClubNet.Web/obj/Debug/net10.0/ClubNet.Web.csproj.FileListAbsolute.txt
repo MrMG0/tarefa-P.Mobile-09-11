@@ -99,3 +99,4 @@ C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\refint\ClubNet.Web.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.pdb
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.genruntimeconfig.cache
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ref\ClubNet.Web.dll
+C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.sourcelink.json

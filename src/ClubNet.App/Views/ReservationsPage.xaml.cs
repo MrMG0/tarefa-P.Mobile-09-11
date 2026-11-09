@@ -68,9 +68,8 @@ public partial class ReservationsPage : ContentPage
             return;
         }
 
-        var data = DpDataReserva.Date ?? DateTime.Today;
-        var inicio = data.Add(TpInicio.Time ?? TimeSpan.FromHours(12));
-        var fim = data.Add(TpFim.Time ?? TimeSpan.FromHours(18));
+        var inicio = (DpDataInicio.Date ?? DateTime.Today).Add(TpInicio.Time ?? TimeSpan.FromHours(12));
+        var fim = (DpDataFim.Date ?? DateTime.Today).Add(TpFim.Time ?? TimeSpan.FromHours(18));
 
         if (fim <= inicio)
         {

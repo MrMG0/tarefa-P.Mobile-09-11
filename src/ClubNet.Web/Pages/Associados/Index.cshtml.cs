@@ -64,6 +64,25 @@ public class IndexModel : PageModel
         return RedirectToPage(new { Situacao, Busca });
     }
 
+    public async Task<IActionResult> OnPostAtualizarCategoriaAsync(int id, string tipoAssociado)
+    {
+        if (!_apiClient.IsLoggedIn) return RedirectToPage("/Login");
+        if (string.IsNullOrWhiteSpace(tipoAssociado))
+        {
+            TempData["MensagemErro"] = "Selecione uma categoria válida.";
+            return RedirectToPage(new { Situacao, Busca });
+        }
+
+        var sucesso = await _apiClient.UpdateAssociadoAsync(id, new UpdateAssociadoDto
+        {
+            TipoAssociado = tipoAssociado
+        });
+        TempData[sucesso ? "MensagemSucesso" : "MensagemErro"] = sucesso
+            ? "Categoria do associado atualizada."
+            : "Não foi possível atualizar a categoria.";
+        return RedirectToPage(new { Situacao, Busca });
+    }
+
     public async Task<IActionResult> OnPostAddDependenteAsync()
     {
         if (NovoDependente.IdAssociado <= 0 || string.IsNullOrWhiteSpace(NovoDependente.Nome))

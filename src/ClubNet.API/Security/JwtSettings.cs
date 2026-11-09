@@ -10,6 +10,6 @@ public class JwtSettings
 
 public interface IJwtService
 {
-    string GenerateToken(int userId, string nome, string email, string perfil, int? idClube, int? idAssociado);
+    string GenerateToken(int userId, string nome, string email, string perfil, int? idClube, int? idAssociado, int? idDependente = null);
     bool ValidateToken(string token, out System.Security.Claims.ClaimsPrincipal? principal);
 }

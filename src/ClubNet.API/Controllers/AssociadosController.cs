@@ -3,6 +3,7 @@ using ClubNet.API.Services;
 using ClubNet.Shared.Constants;
 using ClubNet.Shared.DTOs;
 using ClubNet.Shared.Models;
+using ClubNet.API.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,10 @@ public class AssociadosController : ControllerBase
     public async Task<ActionResult<List<AssociadoDto>>> GetAssociados([FromQuery] int? idClube, [FromQuery] string? situacao, [FromQuery] string? busca)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+        if (!_currentUser.IsSuperAdmin && !_currentUser.IsPresidente && !_currentUser.IsAdmin && !_currentUser.IsTesoureiro)
+        {
+            return Forbid();
+        }
 
         var effectiveClubeId = _currentUser.GetEffectiveClubeId(idClube);
         if (!_currentUser.IsSuperAdmin && !effectiveClubeId.HasValue)
@@ -76,6 +81,7 @@ public class AssociadosController : ControllerBase
                 Email = a.Email,
                 DataNascimento = a.DataNascimento,
                 TipoAssociado = a.TipoAssociado,
+                TemDireitoVoto = a.SituacaoCadastro == SituacaoCadastro.Aprovado && TiposAssociado.TemDireitoVoto(a.TipoAssociado),
                 SituacaoCadastro = a.SituacaoCadastro,
                 DataCadastro = a.DataCadastro,
                 IdUsuario = a.IdUsuario,
@@ -112,17 +118,12 @@ public class AssociadosController : ControllerBase
 
         if (a == null) return NotFound();
 
-        // Validar permissão de visualização
-        if (!_currentUser.IsSuperAdmin)
+        var canView = _currentUser.IsSuperAdmin ||
+                      (_currentUser.IsAssociado && _currentUser.AssociadoId == a.Id) ||
+                      _currentUser.CanManageFinance(a.IdClube);
+        if (!canView)
         {
-            if (_currentUser.IsAssociado && _currentUser.AssociadoId != a.Id)
-            {
-                return Forbid();
-            }
-            if ((_currentUser.IsPresidente || _currentUser.IsAdmin || _currentUser.IsTesoureiro) && _currentUser.ClubeId != a.IdClube)
-            {
-                return Forbid();
-            }
+            return Forbid();
         }
 
         return Ok(new AssociadoDto
@@ -142,10 +143,13 @@ public class AssociadosController : ControllerBase
             Email = a.Email,
             DataNascimento = a.DataNascimento,
             TipoAssociado = a.TipoAssociado,
+            TemDireitoVoto = a.SituacaoCadastro == SituacaoCadastro.Aprovado && TiposAssociado.TemDireitoVoto(a.TipoAssociado),
             SituacaoCadastro = a.SituacaoCadastro,
             DataCadastro = a.DataCadastro,
             IdUsuario = a.IdUsuario,
-            Dependentes = a.Dependentes.Select(d => new DependenteDto
+            Dependentes = a.Dependentes
+                .Where(d => !_currentUser.IsDependente || d.Id == _currentUser.DependenteId)
+                .Select(d => new DependenteDto
             {
                 Id = d.Id,
                 IdAssociado = d.IdAssociado,
@@ -172,8 +176,8 @@ public class AssociadosController : ControllerBase
 
         if (!_currentUser.IsSuperAdmin)
         {
-            var isOwn = _currentUser.IsAssociado && _currentUser.AssociadoId == associado.Id;
-            var isClubStaff = (_currentUser.IsPresidente || _currentUser.IsAdmin) && _currentUser.ClubeId == associado.IdClube;
+            var isOwn = _currentUser.IsAssociado && !_currentUser.IsDependente && _currentUser.AssociadoId == associado.Id;
+            var isClubStaff = _currentUser.CanManageClub(associado.IdClube);
 
             if (!isOwn && !isClubStaff) return Forbid();
         }
@@ -192,7 +196,18 @@ public class AssociadosController : ControllerBase
         // Apenas diretoria pode alterar tipo e situação
         if (_currentUser.IsSuperAdmin || _currentUser.IsPresidente || _currentUser.IsAdmin)
         {
-            if (!string.IsNullOrWhiteSpace(request.TipoAssociado)) associado.TipoAssociado = request.TipoAssociado;
+            if (!string.IsNullOrWhiteSpace(request.TipoAssociado))
+            {
+                var tipo = request.TipoAssociado.Trim().ToUpperInvariant();
+                if (tipo != TiposAssociado.AssociadoFundador &&
+                    tipo != TiposAssociado.Associado &&
+                    tipo != TiposAssociado.Convidado &&
+                    tipo != TiposAssociado.Simpatizante)
+                {
+                    return BadRequest("Tipo de associado inválido.");
+                }
+                associado.TipoAssociado = tipo;
+            }
             if (!string.IsNullOrWhiteSpace(request.SituacaoCadastro)) associado.SituacaoCadastro = request.SituacaoCadastro;
         }
 
@@ -278,14 +293,14 @@ public class AssociadosController : ControllerBase
         var associado = await _db.Associados.FindAsync(id);
         if (associado == null) return NotFound();
 
-        if (!_currentUser.IsSuperAdmin)
+        var isOwner = _currentUser.IsAssociado && _currentUser.AssociadoId == id;
+        if (!_currentUser.IsSuperAdmin && !isOwner && !_currentUser.CanManageClub(associado.IdClube))
         {
-            if (_currentUser.IsAssociado && _currentUser.AssociadoId != id) return Forbid();
-            if ((_currentUser.IsPresidente || _currentUser.IsAdmin) && _currentUser.ClubeId != associado.IdClube) return Forbid();
+            return Forbid();
         }
-
         var dependentes = await _db.Dependentes
             .Where(d => d.IdAssociado == id)
+            .Where(d => !_currentUser.IsDependente || d.Id == _currentUser.DependenteId)
             .Select(d => new DependenteDto
             {
                 Id = d.Id,
@@ -308,14 +323,38 @@ public class AssociadosController : ControllerBase
     public async Task<ActionResult<DependenteDto>> CreateDependente(int id, [FromBody] CreateDependenteDto request)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+        if (_currentUser.IsDependente) return Forbid();
 
         var associado = await _db.Associados.FindAsync(id);
         if (associado == null) return NotFound();
 
-        if (!_currentUser.IsSuperAdmin)
+        var isOwner = _currentUser.IsAssociado && !_currentUser.IsDependente && _currentUser.AssociadoId == id;
+        var canManage = _currentUser.CanManageClub(associado.IdClube);
+        if (!isOwner && !canManage)
         {
-            if (_currentUser.IsAssociado && _currentUser.AssociadoId != id) return Forbid();
-            if ((_currentUser.IsPresidente || _currentUser.IsAdmin) && _currentUser.ClubeId != associado.IdClube) return Forbid();
+            return Forbid();
+        }
+        if (isOwner && associado.SituacaoCadastro != SituacaoCadastro.Aprovado)
+        {
+            return BadRequest("Somente associados aprovados podem cadastrar dependentes.");
+        }
+
+        string? emailAcesso = null;
+        if (request.CriarAcessoApp)
+        {
+            emailAcesso = request.Email?.Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(emailAcesso) || !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(emailAcesso))
+            {
+                return BadRequest("Informe um e-mail válido para criar o acesso do dependente.");
+            }
+            if (string.IsNullOrWhiteSpace(request.SenhaAcesso) || request.SenhaAcesso.Length < 6)
+            {
+                return BadRequest("A senha de acesso do dependente deve ter pelo menos 6 caracteres.");
+            }
+            if (await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == emailAcesso))
+            {
+                return Conflict("Este e-mail já possui uma conta no ClubNet.");
+            }
         }
 
         var dependente = new Dependente
@@ -326,11 +365,24 @@ public class AssociadosController : ControllerBase
             DataNascimento = request.DataNascimento,
             Parentesco = request.Parentesco?.Trim(),
             Telefone = request.Telefone?.Trim(),
-            Email = request.Email?.Trim().ToLower(),
+            Email = emailAcesso ?? request.Email?.Trim().ToLower(),
             Ativo = true
         };
 
         _db.Dependentes.Add(dependente);
+        if (request.CriarAcessoApp)
+        {
+            _db.Usuarios.Add(new Usuario
+            {
+                Nome = dependente.Nome,
+                Email = emailAcesso!,
+                SenhaHash = PasswordHasher.HashPassword(request.SenhaAcesso!),
+                Perfil = Perfis.Dependente,
+                IdClube = associado.IdClube,
+                Ativo = true,
+                DataCadastro = DateTime.UtcNow
+            });
+        }
         await _db.SaveChangesAsync();
 
         return Ok(new DependenteDto
@@ -352,6 +404,7 @@ public class AssociadosController : ControllerBase
     public async Task<IActionResult> DeleteDependente(int id, int depId)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+        if (_currentUser.IsDependente) return Forbid();
 
         var dep = await _db.Dependentes.FirstOrDefaultAsync(d => d.Id == depId && d.IdAssociado == id);
         if (dep == null) return NotFound();
@@ -359,10 +412,21 @@ public class AssociadosController : ControllerBase
         var associado = await _db.Associados.FindAsync(id);
         if (associado == null) return NotFound();
 
-        if (!_currentUser.IsSuperAdmin)
+        var isOwner = _currentUser.IsAssociado && !_currentUser.IsDependente && _currentUser.AssociadoId == id;
+        var canManage = _currentUser.CanManageClub(associado.IdClube);
+        if (!isOwner && !canManage)
         {
-            if (_currentUser.IsAssociado && _currentUser.AssociadoId != id) return Forbid();
-            if ((_currentUser.IsPresidente || _currentUser.IsAdmin) && _currentUser.ClubeId != associado.IdClube) return Forbid();
+            return Forbid();
+        }
+
+        if (!string.IsNullOrWhiteSpace(dep.Email))
+        {
+            var account = await _db.Usuarios.FirstOrDefaultAsync(u =>
+                u.Perfil == Perfis.Dependente && u.Email == dep.Email);
+            if (account != null)
+            {
+                _db.Usuarios.Remove(account);
+            }
         }
 
         _db.Dependentes.Remove(dep);
@@ -375,6 +439,19 @@ public class AssociadosController : ControllerBase
     [HttpGet("{id}/interesses")]
     public async Task<ActionResult<List<string>>> GetInteresses(int id)
     {
+        if (!_currentUser.IsAuthenticated) return Unauthorized();
+        var clubeId = await _db.Associados
+            .Where(a => a.Id == id)
+            .Select(a => (int?)a.IdClube)
+            .FirstOrDefaultAsync();
+        if (!clubeId.HasValue) return NotFound();
+        if (!_currentUser.IsSuperAdmin &&
+            !(_currentUser.IsAssociado && _currentUser.AssociadoId == id) &&
+            !_currentUser.CanManageFinance(clubeId.Value))
+        {
+            return Forbid();
+        }
+
         var interesses = await _db.InteressesAssociado
             .Where(i => i.IdAssociado == id)
             .Select(i => i.Interesse)
@@ -387,12 +464,15 @@ public class AssociadosController : ControllerBase
     public async Task<IActionResult> AddInteresse(int id, [FromBody] string interesse)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+        if (_currentUser.IsDependente) return Forbid();
         if (string.IsNullOrWhiteSpace(interesse)) return BadRequest("Interesse não pode ser vazio.");
 
         var associado = await _db.Associados.FindAsync(id);
         if (associado == null) return NotFound();
 
-        if (!_currentUser.IsSuperAdmin && _currentUser.AssociadoId != id && !_currentUser.CanManageClub(associado.IdClube))
+        if (!_currentUser.IsSuperAdmin &&
+            !(_currentUser.IsAssociado && _currentUser.AssociadoId == id) &&
+            !_currentUser.CanManageClub(associado.IdClube))
         {
             return Forbid();
         }
@@ -415,11 +495,15 @@ public class AssociadosController : ControllerBase
     public async Task<IActionResult> RemoveInteresse(int id, string interesse)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+        if (_currentUser.IsDependente) return Forbid();
+        if (string.IsNullOrWhiteSpace(interesse)) return BadRequest("Interesse não pode ser vazio.");
 
         var associado = await _db.Associados.FindAsync(id);
         if (associado == null) return NotFound();
 
-        if (!_currentUser.IsSuperAdmin && _currentUser.AssociadoId != id && !_currentUser.CanManageClub(associado.IdClube))
+        if (!_currentUser.IsSuperAdmin &&
+            !(_currentUser.IsAssociado && _currentUser.AssociadoId == id) &&
+            !_currentUser.CanManageClub(associado.IdClube))
         {
             return Forbid();
         }

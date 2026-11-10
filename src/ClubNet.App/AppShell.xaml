@@ -9,22 +9,22 @@
 
     <TabBar>
         <Tab Title="Início" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:HomePage}" />
+            <ShellContent Route="Inicio" ContentTemplate="{DataTemplate views:HomePage}" />
         </Tab>
         <Tab Title="Mensalidades" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:PaymentsPage}" />
+            <ShellContent Route="Mensalidades" ContentTemplate="{DataTemplate views:PaymentsPage}" />
         </Tab>
         <Tab Title="Eventos" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:EventsPage}" />
+            <ShellContent Route="Eventos" ContentTemplate="{DataTemplate views:EventsPage}" />
         </Tab>
         <Tab Title="Reservas" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:ReservationsPage}" />
+            <ShellContent Route="Reservas" ContentTemplate="{DataTemplate views:ReservationsPage}" />
         </Tab>
         <Tab Title="Atendimento" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:RequestsPage}" />
+            <ShellContent Route="Atendimento" ContentTemplate="{DataTemplate views:RequestsPage}" />
         </Tab>
         <Tab Title="Perfil" Icon="dotnet_bot.png">
-            <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
+            <ShellContent Route="Perfil" ContentTemplate="{DataTemplate views:ProfilePage}" />
         </Tab>
     </TabBar>
 

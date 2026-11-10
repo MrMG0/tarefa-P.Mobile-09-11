@@ -1,0 +1,10 @@
+<api type="debug" assembly-name="ClubNet.App" mvid="9a11fa3d639c41d18985f1e03063e576">
+  <java-to-managed>
+    <entry java-name="crc644d3533e6e636bef6/MainActivity" managed-name="ClubNet.App.MainActivity, ClubNet.App" managed-type-token-id="33554442" />
+    <entry java-name="crc644d3533e6e636bef6/MainApplication" managed-name="ClubNet.App.MainApplication, ClubNet.App" managed-type-token-id="33554443" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="crc644d3533e6e636bef6/MainActivity" managed-name="ClubNet.App.MainActivity, ClubNet.App" managed-type-token-id="33554442" />
+    <entry java-name="crc644d3533e6e636bef6/MainApplication" managed-name="ClubNet.App.MainApplication, ClubNet.App" managed-type-token-id="33554443" />
+  </managed-to-java>
+</api>

@@ -1,0 +1,10 @@
+<api type="debug" assembly-name="Microsoft.Maui.DevFlow.Agent" mvid="b6e613acffeb473f84dceb3f6d004bd9">
+  <java-to-managed>
+    <entry java-name="crc643a7f302f8a63a2bb/AndroidFrameMetricsStatsProvider" managed-name="Microsoft.Maui.DevFlow.Agent.Profiling.AndroidFrameMetricsStatsProvider, Microsoft.Maui.DevFlow.Agent" managed-type-token-id="33554445" />
+    <entry java-name="crc643a7f302f8a63a2bb/AndroidChoreographerFrameStatsProvider" managed-name="Microsoft.Maui.DevFlow.Agent.Profiling.AndroidChoreographerFrameStatsProvider, Microsoft.Maui.DevFlow.Agent" managed-type-token-id="33554446" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="crc643a7f302f8a63a2bb/AndroidFrameMetricsStatsProvider" managed-name="Microsoft.Maui.DevFlow.Agent.Profiling.AndroidFrameMetricsStatsProvider, Microsoft.Maui.DevFlow.Agent" managed-type-token-id="33554445" />
+    <entry java-name="crc643a7f302f8a63a2bb/AndroidChoreographerFrameStatsProvider" managed-name="Microsoft.Maui.DevFlow.Agent.Profiling.AndroidChoreographerFrameStatsProvider, Microsoft.Maui.DevFlow.Agent" managed-type-token-id="33554446" />
+  </managed-to-java>
+</api>

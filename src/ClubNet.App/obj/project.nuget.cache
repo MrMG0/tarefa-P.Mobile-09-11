@@ -126,15 +126,5 @@
     "C:\\Users\\mathe\\.nuget\\packages\\xamarin.kotlinx.serialization.core.jvm\\1.9.0.1\\xamarin.kotlinx.serialization.core.jvm.1.9.0.1.nupkg.sha512",
     "C:\\Users\\mathe\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.57\\microsoft.windows.sdk.net.ref.10.0.19041.57.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "message": "Ocorreu um erro ao obter os dados de vulnerabilidade do pacote: Não é possível carregar o índice de serviço para a origem https://api.nuget.org/v3/index.json.",
-      "projectPath": "C:\\tarefaKaneko\\ClubNet\\src\\ClubNet.App\\ClubNet.App.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\tarefaKaneko\\ClubNet\\src\\ClubNet.App\\ClubNet.App.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

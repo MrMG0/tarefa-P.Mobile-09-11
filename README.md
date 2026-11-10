@@ -77,6 +77,7 @@ Em outro terminal:
   ```
 - O app conecta automaticamente na API:
   - No emulador Android, utiliza `http://10.0.2.2:5000` (mapeamento nativo para o localhost do computador host).
+  - O perfil padrão da API também usa a porta `5000`. Para desenvolvimento Android local, o app permite HTTP sem TLS; em produção, configure a API com HTTPS.
   - Possui botões de preenchimento rápido para testar a experiência do associado Carlos (aprovado) ou Marcos (em análise), além de permitir solicitar associação como convidado ou simpatizante, com aprovação obrigatória antes do primeiro acesso.
   - Associados titulares podem criar contas de acesso ao app para dependentes.
   - Reservas permitem informar datas e horários de início e término em dias diferentes.

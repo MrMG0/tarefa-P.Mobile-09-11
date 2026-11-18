@@ -3,9 +3,14 @@ using ClubNet.API.Data;
 using ClubNet.API.Security;
 using ClubNet.API.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Data Protection em diretório local
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")));
 
 builder.Services
     .AddAuthentication(options => options.DefaultForbidScheme = ApiStatusCodeAuthenticationHandler.SchemeName)
@@ -42,7 +47,7 @@ var connectionString = builder.Configuration.GetConnectionString(
 if (!provider.Equals("MySql", StringComparison.OrdinalIgnoreCase))
 {
     var dbPath = Path.Combine(builder.Environment.ContentRootPath, "clubnet.db");
-    connectionString = $"Data Source={dbPath}";
+    connectionString = $"Data Source={dbPath};Default Timeout=30;Cache=Shared;Mode=ReadWriteCreate;";
 }
 
 builder.Services.AddDbContext<ClubNetDbContext>(options =>

@@ -41,7 +41,10 @@ public class IndexModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnGetDarBaixaAsync(int id)
+    public async Task<IActionResult> OnPostDarBaixaAsync(int id) => await ProcessarBaixaAsync(id);
+    public async Task<IActionResult> OnGetDarBaixaAsync(int id) => await ProcessarBaixaAsync(id);
+
+    private async Task<IActionResult> ProcessarBaixaAsync(int id)
     {
         var sucesso = await _apiClient.UpdateSituacaoMensalidadeAsync(id, "PAGA");
         if (sucesso)

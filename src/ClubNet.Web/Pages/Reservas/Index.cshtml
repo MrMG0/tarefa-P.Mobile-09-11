@@ -139,18 +139,24 @@
                             <td class="text-end">
                                 @if (r.Status == "PENDENTE")
                                 {
-                                    <a asp-page-handler="Aprovar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-success me-1" title="Aprovar Reserva">
-                                        <i class="bi bi-check-lg"></i> Aprovar
-                                    </a>
-                                    <a asp-page-handler="Rejeitar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-outline-danger" title="Rejeitar Reserva">
-                                        <i class="bi bi-x-lg"></i> Rejeitar
-                                    </a>
+                                    <form method="post" asp-page-handler="Aprovar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success me-1" title="Aprovar Reserva">
+                                            <i class="bi bi-check-lg"></i> Aprovar
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Rejeitar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Rejeitar Reserva">
+                                            <i class="bi bi-x-lg"></i> Rejeitar
+                                        </button>
+                                    </form>
                                 }
                                 else if (r.Status == "APROVADA")
                                 {
-                                    <a asp-page-handler="Cancelar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Deseja cancelar esta reserva confirmada?')">
-                                        <i class="bi bi-slash-circle"></i> Cancelar
-                                    </a>
+                                    <form method="post" asp-page-handler="Cancelar" asp-route-id="@r.Id" asp-route-status="@Model.Status" asp-route-mes="@Model.Mes" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Deseja cancelar esta reserva confirmada?')">
+                                            <i class="bi bi-slash-circle"></i> Cancelar
+                                        </button>
+                                    </form>
                                 }
                             </td>
                         </tr>

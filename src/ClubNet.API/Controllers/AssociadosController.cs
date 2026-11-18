@@ -491,7 +491,7 @@ public class AssociadosController : ControllerBase
         return Ok(new { IdAssociado = id, Interesse = interesse.Trim() });
     }
 
-    [HttpDelete("{id}/interesses/{interesse}")]
+    [HttpDelete("{id}/interesses/{*interesse}")]
     public async Task<IActionResult> RemoveInteresse(int id, string interesse)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();

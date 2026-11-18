@@ -14,6 +14,7 @@ public class ReservasController : ControllerBase
 {
     private readonly ClubNetDbContext _db;
     private readonly ICurrentUserService _currentUser;
+    private static readonly SemaphoreSlim _reservaLock = new(1, 1);
 
     public ReservasController(ClubNetDbContext db, ICurrentUserService currentUser)
     {
@@ -74,12 +75,13 @@ public class ReservasController : ControllerBase
 
         if (dataInicio.HasValue)
         {
-            query = query.Where(r => r.DataHoraInicio >= dataInicio.Value);
+            query = query.Where(r => r.DataHoraFim >= dataInicio.Value.Date);
         }
 
         if (dataFim.HasValue)
         {
-            query = query.Where(r => r.DataHoraFim <= dataFim.Value);
+            var fimDoDia = dataFim.Value.Date.AddDays(1).AddTicks(-1);
+            query = query.Where(r => r.DataHoraInicio <= fimDoDia);
         }
 
         var reservas = await query
@@ -109,6 +111,11 @@ public class ReservasController : ControllerBase
     public async Task<ActionResult<ReservaDto>> CreateReserva([FromBody] CreateReservaDto request)
     {
         if (!_currentUser.IsAuthenticated) return Unauthorized();
+
+        if (request.DataHoraInicio < DateTime.UtcNow.AddMinutes(-10))
+        {
+            return BadRequest("A data e hora de início não pode ser no passado.");
+        }
 
         if (request.DataHoraFim <= request.DataHoraInicio)
         {
@@ -152,50 +159,58 @@ public class ReservasController : ControllerBase
             return BadRequest("Apenas associados com cadastro aprovado podem solicitar reservas.");
         }
 
-        // RN09: Verificação rigorosa de conflito de horário para o mesmo espaço
-        var conflito = await _db.Reservas
-            .AnyAsync(r => r.IdEspaco == request.IdEspaco 
-                        && (r.Status == StatusReserva.Aprovada || r.Status == StatusReserva.Pendente)
-                        && request.DataHoraInicio < r.DataHoraFim 
-                        && request.DataHoraFim > r.DataHoraInicio);
-
-        if (conflito)
+        await _reservaLock.WaitAsync();
+        try
         {
-            return Conflict(new { Mensagem = "Já existe uma reserva pendente ou aprovada para este espaço no horário solicitado." });
+            // RN09: Verificação rigorosa de conflito de horário para o mesmo espaço
+            var conflito = await _db.Reservas
+                .AnyAsync(r => r.IdEspaco == request.IdEspaco 
+                            && (r.Status == StatusReserva.Aprovada || r.Status == StatusReserva.Pendente)
+                            && request.DataHoraInicio < r.DataHoraFim 
+                            && request.DataHoraFim > r.DataHoraInicio);
+
+            if (conflito)
+            {
+                return Conflict(new { Mensagem = "Já existe uma reserva pendente ou aprovada para este espaço no horário solicitado." });
+            }
+
+            var reserva = new Reserva
+            {
+                IdClube = espaco.IdClube,
+                IdEspaco = espaco.Id,
+                IdAssociado = associado.Id,
+                Titulo = request.Titulo?.Trim() ?? $"Reserva {espaco.Nome} - {associado.Nome}",
+                DataHoraInicio = request.DataHoraInicio,
+                DataHoraFim = request.DataHoraFim,
+                Finalidade = request.Finalidade?.Trim(),
+                Status = StatusReserva.Pendente,
+                Observacao = request.Observacao?.Trim()
+            };
+
+            _db.Reservas.Add(reserva);
+            await _db.SaveChangesAsync();
+
+            return Ok(new ReservaDto
+            {
+                Id = reserva.Id,
+                IdClube = reserva.IdClube,
+                NomeClube = espaco.Clube?.Nome,
+                IdEspaco = reserva.IdEspaco,
+                NomeEspaco = espaco.Nome,
+                IdAssociado = reserva.IdAssociado,
+                NomeAssociado = associado.Nome,
+                Titulo = reserva.Titulo,
+                DataHoraInicio = reserva.DataHoraInicio,
+                DataHoraFim = reserva.DataHoraFim,
+                Finalidade = reserva.Finalidade,
+                Status = reserva.Status,
+                Observacao = reserva.Observacao
+            });
         }
-
-        var reserva = new Reserva
+        finally
         {
-            IdClube = espaco.IdClube,
-            IdEspaco = espaco.Id,
-            IdAssociado = associado.Id,
-            Titulo = request.Titulo?.Trim() ?? $"Reserva {espaco.Nome} - {associado.Nome}",
-            DataHoraInicio = request.DataHoraInicio,
-            DataHoraFim = request.DataHoraFim,
-            Finalidade = request.Finalidade?.Trim(),
-            Status = StatusReserva.Pendente,
-            Observacao = request.Observacao?.Trim()
-        };
-
-        _db.Reservas.Add(reserva);
-        await _db.SaveChangesAsync();
-
-        return Ok(new ReservaDto
-        {
-            Id = reserva.Id,
-            IdClube = reserva.IdClube,
-            NomeClube = espaco.Clube?.Nome,
-            IdEspaco = reserva.IdEspaco,
-            NomeEspaco = espaco.Nome,
-            IdAssociado = reserva.IdAssociado,
-            NomeAssociado = associado.Nome,
-            Titulo = reserva.Titulo,
-            DataHoraInicio = reserva.DataHoraInicio,
-            DataHoraFim = reserva.DataHoraFim,
-            Finalidade = reserva.Finalidade,
-            Status = reserva.Status,
-            Observacao = reserva.Observacao
-        });
+            _reservaLock.Release();
+        }
     }
 
     [HttpPatch("{id}/aprovar")]
@@ -208,23 +223,31 @@ public class ReservasController : ControllerBase
 
         if (!_currentUser.CanManageClub(reserva.IdClube)) return Forbid();
 
-        // Checar novamente se houve conflito entretanto aprovado
-        var conflito = await _db.Reservas
-            .AnyAsync(r => r.Id != id 
-                        && r.IdEspaco == reserva.IdEspaco 
-                        && r.Status == StatusReserva.Aprovada
-                        && reserva.DataHoraInicio < r.DataHoraFim 
-                        && reserva.DataHoraFim > r.DataHoraInicio);
-
-        if (conflito)
+        await _reservaLock.WaitAsync();
+        try
         {
-            return Conflict(new { Mensagem = "Não foi possível aprovar: já existe outra reserva conflitante aprovada para o mesmo período." });
+            // Checar novamente se houve conflito entretanto aprovado
+            var conflito = await _db.Reservas
+                .AnyAsync(r => r.Id != id 
+                            && r.IdEspaco == reserva.IdEspaco 
+                            && r.Status == StatusReserva.Aprovada
+                            && reserva.DataHoraInicio < r.DataHoraFim 
+                            && reserva.DataHoraFim > r.DataHoraInicio);
+
+            if (conflito)
+            {
+                return Conflict(new { Mensagem = "Não foi possível aprovar: já existe outra reserva conflitante aprovada para o mesmo período." });
+            }
+
+            reserva.Status = StatusReserva.Aprovada;
+            await _db.SaveChangesAsync();
+
+            return Ok(new { reserva.Id, reserva.Status, Mensagem = "Reserva aprovada com sucesso." });
         }
-
-        reserva.Status = StatusReserva.Aprovada;
-        await _db.SaveChangesAsync();
-
-        return Ok(new { reserva.Id, reserva.Status, Mensagem = "Reserva aprovada com sucesso." });
+        finally
+        {
+            _reservaLock.Release();
+        }
     }
 
     [HttpPatch("{id}/rejeitar")]

@@ -69,7 +69,10 @@ public class IndexModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnGetAprovarAsync(int id)
+    public async Task<IActionResult> OnPostAprovarAsync(int id) => await ProcessarAprovacaoAsync(id);
+    public async Task<IActionResult> OnGetAprovarAsync(int id) => await ProcessarAprovacaoAsync(id);
+
+    private async Task<IActionResult> ProcessarAprovacaoAsync(int id)
     {
         var sucesso = await _apiClient.AprovarReservaAsync(id);
         if (sucesso)
@@ -83,7 +86,10 @@ public class IndexModel : PageModel
         return RedirectToPage(new { Status, Mes });
     }
 
-    public async Task<IActionResult> OnGetRejeitarAsync(int id)
+    public async Task<IActionResult> OnPostRejeitarAsync(int id) => await ProcessarRejeicaoAsync(id);
+    public async Task<IActionResult> OnGetRejeitarAsync(int id) => await ProcessarRejeicaoAsync(id);
+
+    private async Task<IActionResult> ProcessarRejeicaoAsync(int id)
     {
         var sucesso = await _apiClient.RejeitarReservaAsync(id, "Rejeitada pela diretoria.");
         if (sucesso)
@@ -97,12 +103,19 @@ public class IndexModel : PageModel
         return RedirectToPage(new { Status, Mes });
     }
 
-    public async Task<IActionResult> OnGetCancelarAsync(int id)
+    public async Task<IActionResult> OnPostCancelarAsync(int id) => await ProcessarCancelamentoAsync(id);
+    public async Task<IActionResult> OnGetCancelarAsync(int id) => await ProcessarCancelamentoAsync(id);
+
+    private async Task<IActionResult> ProcessarCancelamentoAsync(int id)
     {
         var sucesso = await _apiClient.CancelarReservaAsync(id);
         if (sucesso)
         {
             TempData["MensagemSucesso"] = "Reserva cancelada.";
+        }
+        else
+        {
+            TempData["MensagemErro"] = "Falha ao cancelar reserva.";
         }
         return RedirectToPage(new { Status, Mes });
     }

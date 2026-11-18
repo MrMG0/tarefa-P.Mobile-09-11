@@ -145,15 +145,22 @@ public class ApiService : IApiService
 
     public async Task<DependenteDto?> GetMeuDependenteAsync()
     {
-        if (CurrentUser?.IdDependente is not int dependentId || CurrentUser.IdAssociado is not int associadoId)
+        try
+        {
+            if (CurrentUser?.IdDependente is not int dependentId || CurrentUser.IdAssociado is not int associadoId)
+            {
+                return null;
+            }
+
+            SetAuthHeader();
+            var dependentes = await _http.GetFromJsonAsync<List<DependenteDto>>(
+                $"{BaseUrl}/api/associados/{associadoId}/dependentes", _jsonOptions);
+            return dependentes?.FirstOrDefault(d => d.Id == dependentId);
+        }
+        catch
         {
             return null;
         }
-
-        SetAuthHeader();
-        var dependentes = await _http.GetFromJsonAsync<List<DependenteDto>>(
-            $"{BaseUrl}/api/associados/{associadoId}/dependentes", _jsonOptions);
-        return dependentes?.FirstOrDefault(d => d.Id == dependentId);
     }
 
     public async Task<List<DependenteDto>> GetMeusDependentesAsync()
@@ -244,6 +251,28 @@ public class ApiService : IApiService
         }
     }
 
+    private string ExtrairMensagemErro(string jsonOuTexto, string mensagemPadrao)
+    {
+        if (string.IsNullOrWhiteSpace(jsonOuTexto)) return mensagemPadrao;
+        try
+        {
+            using var doc = JsonDocument.Parse(jsonOuTexto);
+            if (doc.RootElement.TryGetProperty("mensagem", out var m1) || doc.RootElement.TryGetProperty("Mensagem", out m1))
+            {
+                return m1.GetString() ?? mensagemPadrao;
+            }
+            if (doc.RootElement.TryGetProperty("title", out var m2))
+            {
+                return m2.GetString() ?? mensagemPadrao;
+            }
+        }
+        catch
+        {
+            // Retorna o texto se não for JSON
+        }
+        return jsonOuTexto.Length > 250 ? mensagemPadrao : jsonOuTexto.Trim('"');
+    }
+
     public async Task<(bool Sucesso, string Mensagem)> SolicitarReservaAsync(CreateReservaDto dto)
     {
         try
@@ -259,7 +288,8 @@ public class ApiService : IApiService
             }
 
             var erroJson = await res.Content.ReadAsStringAsync();
-            return (false, string.IsNullOrEmpty(erroJson) ? "Horário indisponível para este espaço." : erroJson);
+            var msg = ExtrairMensagemErro(erroJson, "Horário indisponível para este espaço.");
+            return (false, msg);
         }
         catch (Exception ex)
         {

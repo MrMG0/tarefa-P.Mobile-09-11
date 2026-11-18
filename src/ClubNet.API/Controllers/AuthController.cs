@@ -123,75 +123,100 @@ public class AuthController : ControllerBase
             return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "No cadastro pelo aplicativo, selecione Convidado ou Simpatizante." });
         }
 
-        var emailNormalizado = request.Email.Trim().ToLower();
+        var emailNormalizado = request.Email.Trim().ToLowerInvariant();
         var emailExiste = await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == emailNormalizado);
         if (emailExiste)
         {
             return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "Este e-mail já está cadastrado no sistema." });
         }
 
-        var cpfLimpo = request.Cpf.Replace(".", "").Replace("-", "").Trim();
-        var cpfExisteNoClube = await _db.Associados.AnyAsync(a => a.IdClube == request.IdClube && a.Cpf.Replace(".", "").Replace("-", "").Trim() == cpfLimpo);
+        var cpfLimpo = (request.Cpf ?? string.Empty).Replace(".", "").Replace("-", "").Trim();
+        if (string.IsNullOrWhiteSpace(cpfLimpo))
+        {
+            return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "O CPF informado é inválido." });
+        }
+
+        var cpfsNoClube = await _db.Associados
+            .Where(a => a.IdClube == request.IdClube)
+            .Select(a => a.Cpf)
+            .ToListAsync();
+
+        var cpfExisteNoClube = cpfsNoClube.Any(c => c.Replace(".", "").Replace("-", "").Trim() == cpfLimpo);
         if (cpfExisteNoClube)
         {
             return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "Já existe uma solicitação ou associado com este CPF neste clube." });
         }
 
-        var usuario = new Usuario
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        try
         {
-            Nome = request.Nome.Trim(),
-            Email = emailNormalizado,
-            SenhaHash = PasswordHasher.HashPassword(request.Senha),
-            Perfil = Perfis.Associado,
-            IdClube = request.IdClube,
-            Ativo = true,
-            DataCadastro = DateTime.UtcNow
-        };
-
-        _db.Usuarios.Add(usuario);
-        await _db.SaveChangesAsync();
-
-        var associado = new Associado
-        {
-            IdClube = request.IdClube,
-            Nome = request.Nome.Trim(),
-            Cpf = request.Cpf.Trim(),
-            Email = emailNormalizado,
-            Endereco = request.Endereco?.Trim(),
-            Bairro = request.Bairro?.Trim(),
-            Cidade = request.Cidade?.Trim(),
-            Uf = request.Uf?.Trim().ToUpper(),
-            Sexo = request.Sexo,
-            EstadoCivil = request.EstadoCivil,
-            Telefone = request.Telefone?.Trim(),
-            DataNascimento = request.DataNascimento,
-            TipoAssociado = tipoAssociado,
-            SituacaoCadastro = SituacaoCadastro.Pendente,
-            DataCadastro = DateTime.UtcNow,
-            IdUsuario = usuario.Id
-        };
-
-        _db.Associados.Add(associado);
-        await _db.SaveChangesAsync();
-
-        if (request.InteressesIniciais != null && request.InteressesIniciais.Count > 0)
-        {
-            foreach (var interesse in request.InteressesIniciais.Where(i => !string.IsNullOrWhiteSpace(i)))
+            var usuario = new Usuario
             {
-                _db.InteressesAssociado.Add(new InteresseAssociado
-                {
-                    IdAssociado = associado.Id,
-                    Interesse = interesse.Trim()
-                });
-            }
-            await _db.SaveChangesAsync();
-        }
+                Nome = request.Nome.Trim(),
+                Email = emailNormalizado,
+                SenhaHash = PasswordHasher.HashPassword(request.Senha),
+                Perfil = Perfis.Associado,
+                IdClube = request.IdClube,
+                Ativo = true,
+                DataCadastro = DateTime.UtcNow
+            };
 
-        return Ok(new LoginResponseDto
+            _db.Usuarios.Add(usuario);
+            await _db.SaveChangesAsync();
+
+            var associado = new Associado
+            {
+                IdClube = request.IdClube,
+                Nome = request.Nome.Trim(),
+                Cpf = request.Cpf?.Trim() ?? string.Empty,
+                Email = emailNormalizado,
+                Endereco = request.Endereco?.Trim(),
+                Bairro = request.Bairro?.Trim(),
+                Cidade = request.Cidade?.Trim(),
+                Uf = request.Uf?.Trim().ToUpper(),
+                Sexo = request.Sexo,
+                EstadoCivil = request.EstadoCivil,
+                Telefone = request.Telefone?.Trim(),
+                DataNascimento = request.DataNascimento,
+                TipoAssociado = tipoAssociado,
+                SituacaoCadastro = SituacaoCadastro.Pendente,
+                DataCadastro = DateTime.UtcNow,
+                IdUsuario = usuario.Id
+            };
+
+            _db.Associados.Add(associado);
+            await _db.SaveChangesAsync();
+
+            if (request.InteressesIniciais != null && request.InteressesIniciais.Count > 0)
+            {
+                foreach (var interesse in request.InteressesIniciais.Where(i => !string.IsNullOrWhiteSpace(i)))
+                {
+                    _db.InteressesAssociado.Add(new InteresseAssociado
+                    {
+                        IdAssociado = associado.Id,
+                        Interesse = interesse.Trim()
+                    });
+                }
+                await _db.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
+
+            return Ok(new LoginResponseDto
+            {
+                Sucesso = true,
+                Mensagem = "Solicitação de associação enviada com sucesso! Aguarde a análise da diretoria.",
+            });
+        }
+        catch (Exception ex)
         {
-            Sucesso = true,
-            Mensagem = "Solicitação de associação enviada com sucesso! Aguarde a análise da diretoria.",
-        });
+            await transaction.RollbackAsync();
+            return StatusCode(500, new LoginResponseDto
+            {
+                Sucesso = false,
+                Mensagem = $"Falha ao cadastrar solicitação: {ex.Message}"
+            });
+        }
     }
 
     [HttpGet("me")]

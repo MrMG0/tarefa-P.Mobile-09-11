@@ -36,7 +36,10 @@ public class IndexModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnGetAprovarAsync(int id)
+    public async Task<IActionResult> OnPostAprovarAsync(int id) => await ProcessarAprovacaoAsync(id);
+    public async Task<IActionResult> OnGetAprovarAsync(int id) => await ProcessarAprovacaoAsync(id);
+
+    private async Task<IActionResult> ProcessarAprovacaoAsync(int id)
     {
         var sucesso = await _apiClient.AprovarAssociadoAsync(id);
         if (sucesso)
@@ -50,7 +53,10 @@ public class IndexModel : PageModel
         return RedirectToPage(new { Situacao, Busca });
     }
 
-    public async Task<IActionResult> OnGetRejeitarAsync(int id)
+    public async Task<IActionResult> OnPostRejeitarAsync(int id) => await ProcessarRejeicaoAsync(id);
+    public async Task<IActionResult> OnGetRejeitarAsync(int id) => await ProcessarRejeicaoAsync(id);
+
+    private async Task<IActionResult> ProcessarRejeicaoAsync(int id)
     {
         var sucesso = await _apiClient.RejeitarAssociadoAsync(id);
         if (sucesso)

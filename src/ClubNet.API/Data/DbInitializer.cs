@@ -11,6 +11,11 @@ public static class DbInitializer
     {
         await db.Database.EnsureCreatedAsync();
 
+        if (db.Database.IsSqlite())
+        {
+            await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
+        }
+
         if (await db.Clubes.AnyAsync())
         {
             return; // Banco já populado

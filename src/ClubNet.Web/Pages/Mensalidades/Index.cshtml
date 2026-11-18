@@ -101,9 +101,11 @@
                             <td class="text-end">
                                 @if (m.Situacao != "PAGA")
                                 {
-                                    <a asp-page-handler="DarBaixa" asp-route-id="@m.Id" asp-route-situacao="@Model.Situacao" class="btn btn-sm btn-success" title="Registrar Pagamento">
-                                        <i class="bi bi-cash-coin me-1"></i> Dar Baixa
-                                    </a>
+                                    <form method="post" asp-page-handler="DarBaixa" asp-route-id="@m.Id" asp-route-situacao="@Model.Situacao" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success" title="Registrar Pagamento">
+                                            <i class="bi bi-cash-coin me-1"></i> Dar Baixa
+                                        </button>
+                                    </form>
                                 }
                                 else
                                 {

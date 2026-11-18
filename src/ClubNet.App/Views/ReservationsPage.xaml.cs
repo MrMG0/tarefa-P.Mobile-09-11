@@ -71,6 +71,12 @@ public partial class ReservationsPage : ContentPage
         var inicio = (DpDataInicio.Date ?? DateTime.Today).Add(TpInicio.Time ?? TimeSpan.FromHours(12));
         var fim = (DpDataFim.Date ?? DateTime.Today).Add(TpFim.Time ?? TimeSpan.FromHours(18));
 
+        if (inicio < DateTime.Now.AddMinutes(-10))
+        {
+            await DisplayAlert("Atenção", "A data e horário de início da reserva não pode ser no passado.", "OK");
+            return;
+        }
+
         if (fim <= inicio)
         {
             await DisplayAlert("Atenção", "O horário de término deve ser posterior ao horário de início.", "OK");

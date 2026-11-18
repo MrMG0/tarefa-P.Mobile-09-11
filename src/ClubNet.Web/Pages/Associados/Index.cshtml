@@ -131,12 +131,16 @@
                             <td class="text-end">
                                 @if (a.SituacaoCadastro == "PENDENTE")
                                 {
-                                    <a asp-page-handler="Aprovar" asp-route-id="@a.Id" asp-route-situacao="@Model.Situacao" asp-route-busca="@Model.Busca" class="btn btn-sm btn-success me-1" title="Aprovar Associação">
-                                        <i class="bi bi-check-lg"></i> Aprovar
-                                    </a>
-                                    <a asp-page-handler="Rejeitar" asp-route-id="@a.Id" asp-route-situacao="@Model.Situacao" asp-route-busca="@Model.Busca" class="btn btn-sm btn-outline-danger" title="Rejeitar Solicitação">
-                                        <i class="bi bi-x-lg"></i> Rejeitar
-                                    </a>
+                                    <form method="post" asp-page-handler="Aprovar" asp-route-id="@a.Id" asp-route-situacao="@Model.Situacao" asp-route-busca="@Model.Busca" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success me-1" title="Aprovar Associação">
+                                            <i class="bi bi-check-lg"></i> Aprovar
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Rejeitar" asp-route-id="@a.Id" asp-route-situacao="@Model.Situacao" asp-route-busca="@Model.Busca" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Rejeitar Solicitação">
+                                            <i class="bi bi-x-lg"></i> Rejeitar
+                                        </button>
+                                    </form>
                                 }
                                 else
                                 {

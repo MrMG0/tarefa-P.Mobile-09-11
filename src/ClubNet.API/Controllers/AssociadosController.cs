@@ -81,6 +81,7 @@ public class AssociadosController : ControllerBase
                 Email = a.Email,
                 DataNascimento = a.DataNascimento,
                 TipoAssociado = a.TipoAssociado,
+                SocioIndicador = a.SocioIndicador,
                 TemDireitoVoto = a.SituacaoCadastro == SituacaoCadastro.Aprovado && TiposAssociado.TemDireitoVoto(a.TipoAssociado),
                 SituacaoCadastro = a.SituacaoCadastro,
                 DataCadastro = a.DataCadastro,
@@ -143,6 +144,7 @@ public class AssociadosController : ControllerBase
             Email = a.Email,
             DataNascimento = a.DataNascimento,
             TipoAssociado = a.TipoAssociado,
+            SocioIndicador = a.SocioIndicador,
             TemDireitoVoto = a.SituacaoCadastro == SituacaoCadastro.Aprovado && TiposAssociado.TemDireitoVoto(a.TipoAssociado),
             SituacaoCadastro = a.SituacaoCadastro,
             DataCadastro = a.DataCadastro,
@@ -208,6 +210,7 @@ public class AssociadosController : ControllerBase
                 }
                 associado.TipoAssociado = tipo;
             }
+            if (request.SocioIndicador != null) associado.SocioIndicador = request.SocioIndicador.Trim();
             if (!string.IsNullOrWhiteSpace(request.SituacaoCadastro)) associado.SituacaoCadastro = request.SituacaoCadastro;
         }
 

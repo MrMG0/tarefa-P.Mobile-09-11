@@ -62,6 +62,7 @@ public class RegisterMemberDto
     public string? Telefone { get; set; }
     public DateTime? DataNascimento { get; set; }
     public string? TipoAssociado { get; set; } = "CONVIDADO";
+    public string? SocioIndicador { get; set; }
     public List<string>? InteressesIniciais { get; set; }
 }
 
@@ -135,6 +136,7 @@ public class AssociadoDto
     public string? Email { get; set; }
     public DateTime? DataNascimento { get; set; }
     public string TipoAssociado { get; set; } = string.Empty;
+    public string? SocioIndicador { get; set; }
     public bool TemDireitoVoto { get; set; }
     public string SituacaoCadastro { get; set; } = string.Empty;
     public DateTime DataCadastro { get; set; }
@@ -156,6 +158,7 @@ public class UpdateAssociadoDto
     public string? Email { get; set; }
     public DateTime? DataNascimento { get; set; }
     public string? TipoAssociado { get; set; }
+    public string? SocioIndicador { get; set; }
     public string? SituacaoCadastro { get; set; }
 }
 

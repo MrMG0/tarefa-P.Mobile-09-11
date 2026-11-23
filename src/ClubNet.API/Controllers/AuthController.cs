@@ -123,6 +123,12 @@ public class AuthController : ControllerBase
             return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "No cadastro pelo aplicativo, selecione Convidado ou Simpatizante." });
         }
 
+        var socioIndicador = request.SocioIndicador?.Trim();
+        if (tipoAssociado == TiposAssociado.Convidado && string.IsNullOrWhiteSpace(socioIndicador))
+        {
+            return BadRequest(new LoginResponseDto { Sucesso = false, Mensagem = "Para cadastro como Convidado, informe o nome ou CPF do sócio que te convidou." });
+        }
+
         var emailNormalizado = request.Email.Trim().ToLowerInvariant();
         var emailExiste = await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == emailNormalizado);
         if (emailExiste)
@@ -179,6 +185,7 @@ public class AuthController : ControllerBase
                 Telefone = request.Telefone?.Trim(),
                 DataNascimento = request.DataNascimento,
                 TipoAssociado = tipoAssociado,
+                SocioIndicador = socioIndicador,
                 SituacaoCadastro = SituacaoCadastro.Pendente,
                 DataCadastro = DateTime.UtcNow,
                 IdUsuario = usuario.Id

@@ -1,0 +1,45 @@
+# Build and generated files
+[Bb]in/
+[Oo]bj/
+*.binlog
+*.pdb
+*.dll
+*.exe
+
+# IDE and operating system files
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userprefs
+.DS_Store
+Thumbs.db
+
+# Sensitive keys and secrets
+.keys/
+**/.keys/
+*.key
+*.pfx
+*.p12
+*.pem
+.env
+.env.*
+!.env.example
+secrets.json
+**/secrets.json
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local configuration
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Production.json
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json

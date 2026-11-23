@@ -105,7 +105,17 @@
                                 Title="Categoria pretendida"
                                 TextColor="White"
                                 TitleColor="#64748b"
-                                BackgroundColor="#0f172a" />
+                                BackgroundColor="#0f172a"
+                                SelectedIndexChanged="OnTipoAssociadoChanged" />
+
+                        <VerticalStackLayout x:Name="PanelSocioIndicador" Spacing="4">
+                            <Label Text="Sócio que fez o convite / indicou você: *" TextColor="#38bdf8" FontSize="12" />
+                            <Entry x:Name="TxtCadSocioIndicador"
+                                   Placeholder="Nome ou CPF do sócio indicador *"
+                                   PlaceholderColor="#64748b"
+                                   TextColor="White"
+                                   BackgroundColor="#0f172a" />
+                        </VerticalStackLayout>
 
                         <Entry x:Name="TxtCadNome"
                                Placeholder="Nome Completo *"

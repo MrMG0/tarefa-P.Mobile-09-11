@@ -73,15 +73,24 @@ public class ApiService : IApiService
                 Senha = senha
             });
 
-            var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>(_jsonOptions);
-            if (response.IsSuccessStatusCode && result?.Sucesso == true)
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
             {
-                Token = result.Token;
-                CurrentUser = result.Usuario;
-                return result;
+                var result = JsonSerializer.Deserialize<LoginResponseDto>(content, _jsonOptions);
+                if (result?.Sucesso == true)
+                {
+                    Token = result.Token;
+                    CurrentUser = result.Usuario;
+                    return result;
+                }
             }
 
-            return result ?? new LoginResponseDto { Sucesso = false, Mensagem = "Credenciais inválidas." };
+            var erro = ExtrairMensagemErro(content, "Credenciais inválidas ou erro no acesso.");
+            return new LoginResponseDto { Sucesso = false, Mensagem = erro };
+        }
+        catch (HttpRequestException ex)
+        {
+            return new LoginResponseDto { Sucesso = false, Mensagem = $"Não foi possível conectar ao servidor em {BaseUrl}. Verifique se a API está em execução.\nDetalhes: {ex.Message}" };
         }
         catch (Exception ex)
         {
@@ -94,20 +103,41 @@ public class ApiService : IApiService
         try
         {
             var response = await _http.PostAsJsonAsync($"{BaseUrl}/api/auth/register-member", dto);
-            var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>(_jsonOptions);
+            var content = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode && result?.Sucesso == true)
+            if (response.IsSuccessStatusCode)
             {
-                Token = result.Token;
-                CurrentUser = result.Usuario;
-                return result;
+                var result = JsonSerializer.Deserialize<LoginResponseDto>(content, _jsonOptions);
+                if (result?.Sucesso == true)
+                {
+                    Token = result.Token;
+                    CurrentUser = result.Usuario;
+                    return result;
+                }
             }
 
-            return result ?? new LoginResponseDto { Sucesso = false, Mensagem = "Erro ao processar solicitação de cadastro." };
+            var erro = ExtrairMensagemErro(content, $"Erro ao processar cadastro (Status {(int)response.StatusCode}).");
+            return new LoginResponseDto
+            {
+                Sucesso = false,
+                Mensagem = erro
+            };
+        }
+        catch (HttpRequestException ex)
+        {
+            return new LoginResponseDto
+            {
+                Sucesso = false,
+                Mensagem = $"Não foi possível conectar ao servidor em {BaseUrl}. Verifique se a API está em execução.\nDetalhes: {ex.Message}"
+            };
         }
         catch (Exception ex)
         {
-            return new LoginResponseDto { Sucesso = false, Mensagem = $"Erro de conexão: {ex.Message}" };
+            return new LoginResponseDto
+            {
+                Sucesso = false,
+                Mensagem = $"Erro de conexão: {ex.Message}"
+            };
         }
     }
 
@@ -257,20 +287,60 @@ public class ApiService : IApiService
         try
         {
             using var doc = JsonDocument.Parse(jsonOuTexto);
+
+            // 1. Mensagem explícita enviada pelos controllers do ClubNet
             if (doc.RootElement.TryGetProperty("mensagem", out var m1) || doc.RootElement.TryGetProperty("Mensagem", out m1))
             {
-                return m1.GetString() ?? mensagemPadrao;
+                var str = m1.GetString();
+                if (!string.IsNullOrWhiteSpace(str)) return str;
             }
+
+            // 2. Erros de validação do ModelState (ProblemDetails do ASP.NET Core: errors: { "Campo": ["Erro 1"] })
+            if (doc.RootElement.TryGetProperty("errors", out var errorsProp) && errorsProp.ValueKind == JsonValueKind.Object)
+            {
+                var mensagens = new List<string>();
+                foreach (var prop in errorsProp.EnumerateObject())
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var err in prop.Value.EnumerateArray())
+                        {
+                            var s = err.GetString();
+                            if (!string.IsNullOrWhiteSpace(s)) mensagens.Add(s);
+                        }
+                    }
+                    else if (prop.Value.ValueKind == JsonValueKind.String)
+                    {
+                        var s = prop.Value.GetString();
+                        if (!string.IsNullOrWhiteSpace(s)) mensagens.Add(s);
+                    }
+                }
+                if (mensagens.Count > 0)
+                {
+                    return string.Join("\n", mensagens);
+                }
+            }
+
+            // 3. Detalhe ou título do ProblemDetails
+            if (doc.RootElement.TryGetProperty("detail", out var mDetail))
+            {
+                var str = mDetail.GetString();
+                if (!string.IsNullOrWhiteSpace(str)) return str;
+            }
+
             if (doc.RootElement.TryGetProperty("title", out var m2))
             {
-                return m2.GetString() ?? mensagemPadrao;
+                var str = m2.GetString();
+                if (!string.IsNullOrWhiteSpace(str) && str != "One or more validation errors occurred.") return str;
             }
         }
         catch
         {
             // Retorna o texto se não for JSON
         }
-        return jsonOuTexto.Length > 250 ? mensagemPadrao : jsonOuTexto.Trim('"');
+
+        var textoLimpo = jsonOuTexto.Trim().Trim('"');
+        return textoLimpo.Length > 250 ? mensagemPadrao : textoLimpo;
     }
 
     public async Task<(bool Sucesso, string Mensagem)> SolicitarReservaAsync(CreateReservaDto dto)

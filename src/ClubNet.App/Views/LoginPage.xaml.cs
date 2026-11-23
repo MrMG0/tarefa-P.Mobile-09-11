@@ -48,6 +48,12 @@ public partial class LoginPage : ContentPage
         BtnAbaLogin.TextColor = Color.FromArgb("#94a3b8");
     }
 
+    private void OnTipoAssociadoChanged(object? sender, EventArgs e)
+    {
+        bool isConvidado = PickerTipoAssociado.SelectedIndex == 0;
+        PanelSocioIndicador.IsVisible = isConvidado;
+    }
+
     private async void OnBtnLoginClicked(object sender, EventArgs e)
     {
         var email = TxtLoginEmail.Text?.Trim();
@@ -115,6 +121,26 @@ public partial class LoginPage : ContentPage
             return;
         }
 
+        if (senha.Length < 6)
+        {
+            await DisplayAlert("Atenção", "A senha de acesso deve ter pelo menos 6 caracteres.", "OK");
+            return;
+        }
+
+        if (!email.Contains("@") || !email.Contains("."))
+        {
+            await DisplayAlert("Atenção", "Informe um endereço de e-mail válido.", "OK");
+            return;
+        }
+
+        var isConvidado = PickerTipoAssociado.SelectedIndex == 0;
+        var socioIndicador = TxtCadSocioIndicador.Text?.Trim();
+        if (isConvidado && string.IsNullOrWhiteSpace(socioIndicador))
+        {
+            await DisplayAlert("Atenção", "Para solicitar ingresso como Convidado, informe o nome ou CPF do sócio que te convidou.", "OK");
+            return;
+        }
+
         var interesses = TxtCadInteresses.Text?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
 
         var dto = new RegisterMemberDto
@@ -124,9 +150,8 @@ public partial class LoginPage : ContentPage
             Cpf = cpf,
             Email = email,
             Senha = senha,
-            TipoAssociado = PickerTipoAssociado.SelectedIndex == 1
-                ? TiposAssociado.Simpatizante
-                : TiposAssociado.Convidado,
+            TipoAssociado = isConvidado ? TiposAssociado.Convidado : TiposAssociado.Simpatizante,
+            SocioIndicador = isConvidado ? socioIndicador : null,
             Telefone = TxtCadTelefone.Text?.Trim(),
             InteressesIniciais = interesses
         };
@@ -139,12 +164,16 @@ public partial class LoginPage : ContentPage
         {
             await DisplayAlert("Solicitação Enviada", result.Mensagem, "OK");
             TxtCadSenha.Text = "";
+            TxtCadSocioIndicador.Text = "";
             TxtLoginEmail.Text = email;
             OnAbaLoginClicked(sender, e);
         }
         else
         {
-            await DisplayAlert("Erro no Cadastro", result.Mensagem, "OK");
+            var msg = string.IsNullOrWhiteSpace(result.Mensagem)
+                ? "Não foi possível concluir o cadastro. Verifique os dados informados e tente novamente."
+                : result.Mensagem;
+            await DisplayAlert("Erro no Cadastro", msg, "OK");
         }
     }
 

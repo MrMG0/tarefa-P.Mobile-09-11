@@ -150,6 +150,10 @@ public class Associado
     [Column("tipo_associado")]
     public string TipoAssociado { get; set; } = "ASSOCIADO";
 
+    [MaxLength(200)]
+    [Column("socio_indicador")]
+    public string? SocioIndicador { get; set; }
+
     [MaxLength(30)]
     [Column("situacao_cadastro")]
     public string SituacaoCadastro { get; set; } = "PENDENTE";

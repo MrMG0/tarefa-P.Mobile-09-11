@@ -14,6 +14,25 @@ public static class DbInitializer
         if (db.Database.IsSqlite())
         {
             await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE associados ADD COLUMN socio_indicador TEXT;");
+            }
+            catch
+            {
+                // Coluna já existe no SQLite
+            }
+        }
+        else
+        {
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync("ALTER TABLE associados ADD COLUMN socio_indicador VARCHAR(200) NULL;");
+            }
+            catch
+            {
+                // Coluna já existe ou tabela ainda em criação
+            }
         }
 
         if (await db.Clubes.AnyAsync())

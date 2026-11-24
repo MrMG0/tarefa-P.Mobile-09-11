@@ -218,10 +218,16 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
+            var inner = ex;
+            while (inner.InnerException != null)
+            {
+                inner = inner.InnerException;
+            }
+
             return StatusCode(500, new LoginResponseDto
             {
                 Sucesso = false,
-                Mensagem = $"Falha ao cadastrar solicitação: {ex.Message}"
+                Mensagem = $"Falha ao cadastrar solicitação: {inner.Message}"
             });
         }
     }

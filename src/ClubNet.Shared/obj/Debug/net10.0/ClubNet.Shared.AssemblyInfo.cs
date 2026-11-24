@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClubNet.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a385599c7ae51f3fb331a2f1a1903540af1a55c7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d1cae3c2f512d85e352325b81d62644f002c1ce")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClubNet.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClubNet.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

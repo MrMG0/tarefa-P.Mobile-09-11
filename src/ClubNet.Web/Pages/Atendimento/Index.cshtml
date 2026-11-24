@@ -4,6 +4,19 @@
     ViewData["Title"] = "Fila de Atendimento: Solicitações & Reclamações";
 }
 
+<div class="alert alert-info d-flex align-items-center justify-content-between py-2 px-3 mb-4 rounded-3 shadow-sm border-0">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+        <small class="mb-0 text-dark">
+            Esta tela gerencia <strong>chamados e suporte</strong> de associados já cadastrados.
+            Para analisar <strong>solicitações de novos associados / ingressos do App</strong>, acesse a gestão de associados.
+        </small>
+    </div>
+    <a asp-page="/Associados/Index" asp-route-situacao="PENDENTE" class="btn btn-sm btn-primary text-nowrap fw-semibold">
+        <i class="bi bi-person-check me-1"></i> Ver Ingressos Pendentes
+    </a>
+</div>
+
 <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active fw-bold" id="pills-solic-tab" data-bs-toggle="pill" data-bs-target="#pills-solic" type="button" role="tab">

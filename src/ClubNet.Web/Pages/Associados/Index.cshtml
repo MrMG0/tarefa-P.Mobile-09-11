@@ -4,6 +4,31 @@
     ViewData["Title"] = "Gestão de Associados & Dependentes";
 }
 
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a asp-page="/Associados/Index" class="btn btn-sm @(string.IsNullOrEmpty(Model.Situacao) ? "btn-primary fw-bold" : "btn-outline-secondary")">
+        Todos (@Model.TotalGeral)
+    </a>
+    <a asp-page="/Associados/Index" asp-route-situacao="PENDENTE" class="btn btn-sm @(Model.Situacao == "PENDENTE" ? "btn-warning fw-bold text-dark" : "btn-outline-warning text-dark")">
+        <i class="bi bi-clock-history me-1"></i> Pendentes de Aprovação (@Model.TotalPendentes)
+    </a>
+    <a asp-page="/Associados/Index" asp-route-situacao="APROVADO" class="btn btn-sm @(Model.Situacao == "APROVADO" ? "btn-success fw-bold" : "btn-outline-success")">
+        <i class="bi bi-check-circle me-1"></i> Aprovados / Ativos (@Model.TotalAprovados)
+    </a>
+</div>
+
+@if (Model.TotalPendentes > 0 && Model.Situacao != "PENDENTE")
+{
+    <div class="alert alert-warning d-flex align-items-center justify-content-between py-2 px-3 mb-3 rounded-3 shadow-sm border-0">
+        <div>
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2 fs-5"></i>
+            <span>Existem <strong>@Model.TotalPendentes</strong> solicitação(ões) de novos associados aguardando aprovação da diretoria.</span>
+        </div>
+        <a asp-page="/Associados/Index" asp-route-situacao="PENDENTE" class="btn btn-sm btn-dark fw-semibold">
+            Ver Pendentes <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+}
+
 <div class="card border-0 shadow-sm rounded-3 mb-4">
     <div class="card-body p-3">
         <form method="get" class="row g-2 align-items-center">
@@ -65,7 +90,7 @@
                     }
                     @foreach (var a in Model.Associados)
                     {
-                        <tr>
+                        <tr class="@(a.SituacaoCadastro == "PENDENTE" ? "table-warning bg-opacity-25" : "")">
                             <td>
                                 <div class="fw-bold">@a.Nome</div>
                                 <small class="text-muted">@a.NomeClube</small>

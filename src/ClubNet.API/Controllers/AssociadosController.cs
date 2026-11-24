@@ -60,7 +60,9 @@ public class AssociadosController : ControllerBase
 
         var associados = await query
             .AsSplitQuery()
-            .OrderBy(a => a.Nome)
+            .OrderBy(a => a.SituacaoCadastro == SituacaoCadastro.Pendente ? 0 : 1)
+            .ThenByDescending(a => a.DataCadastro)
+            .ThenBy(a => a.Nome)
             .ToListAsync();
 
         var list = associados

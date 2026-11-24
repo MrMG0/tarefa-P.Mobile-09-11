@@ -25,6 +25,10 @@ public class IndexModel : PageModel
     [BindProperty]
     public CreateDependenteDto NovoDependente { get; set; } = new();
 
+    public int TotalPendentes { get; set; }
+    public int TotalAprovados { get; set; }
+    public int TotalGeral { get; set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
         if (!_apiClient.IsLoggedIn) return RedirectToPage("/Login");
@@ -33,6 +37,15 @@ public class IndexModel : PageModel
         var idClube = user?.Perfil == "SUPERADMIN" ? null : user?.IdClube;
 
         Associados = await _apiClient.GetAssociadosAsync(idClube, Situacao, Busca);
+
+        var todos = (string.IsNullOrEmpty(Situacao) && string.IsNullOrEmpty(Busca))
+            ? Associados
+            : await _apiClient.GetAssociadosAsync(idClube, null, null);
+
+        TotalPendentes = todos.Count(a => a.SituacaoCadastro == "PENDENTE");
+        TotalAprovados = todos.Count(a => a.SituacaoCadastro == "APROVADO");
+        TotalGeral = todos.Count;
+
         return Page();
     }
 

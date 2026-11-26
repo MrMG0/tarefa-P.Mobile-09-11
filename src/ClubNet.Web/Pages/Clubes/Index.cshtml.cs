@@ -32,9 +32,12 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostCriarAsync()
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid ||
+            string.IsNullOrWhiteSpace(NovoClube.NomePresidente) ||
+            string.IsNullOrWhiteSpace(NovoClube.EmailPresidente) ||
+            string.IsNullOrWhiteSpace(NovoClube.SenhaPresidente))
         {
-            TempData["MensagemErro"] = "Preencha corretamente os dados do clube.";
+            TempData["MensagemErro"] = "Preencha os dados do clube e do presidente. A senha inicial deve ter pelo menos 6 caracteres.";
             return RedirectToPage();
         }
 

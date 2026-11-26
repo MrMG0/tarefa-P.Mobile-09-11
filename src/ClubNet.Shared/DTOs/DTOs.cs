@@ -97,6 +97,7 @@ public class ClubeDto
     public string? Uf { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
+    public string? NomePresidente { get; set; }
     public bool Ativo { get; set; }
     public int TotalAssociados { get; set; }
 }
@@ -116,6 +117,16 @@ public class CreateClubeDto
     public string? Uf { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
+
+    [MaxLength(200)]
+    public string? NomePresidente { get; set; }
+
+    [EmailAddress]
+    [MaxLength(200)]
+    public string? EmailPresidente { get; set; }
+
+    [MinLength(6)]
+    public string? SenhaPresidente { get; set; }
 }
 
 // --- ASSOCIADO ---

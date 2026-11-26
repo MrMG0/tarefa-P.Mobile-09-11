@@ -93,6 +93,20 @@
                             }
                         </select>
                     </div>
+                    @if (isSuperAdmin)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Clube Vinculado</label>
+                            <select asp-for="NovoUsuario.IdClube" class="form-select">
+                                <option value="">Administração Global</option>
+                                @foreach (var clube in Model.Clubes)
+                                {
+                                    <option value="@clube.Id">@clube.Nome</option>
+                                }
+                            </select>
+                            <small class="form-text text-muted">Obrigatório para cadastrar um presidente.</small>
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

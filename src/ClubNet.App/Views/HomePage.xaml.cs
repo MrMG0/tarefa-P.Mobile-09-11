@@ -20,6 +20,11 @@ public partial class HomePage : ContentPage
         {
             LblNomeClube.Text = user.NomeClube ?? "Clube Social";
             LblNomeAssociado.Text = user.Nome;
+            if (user.IdClube is int clubeId)
+            {
+                var clube = await _apiService.GetClubeAsync(clubeId);
+                LblNomePresidente.Text = clube?.NomePresidente ?? "Não informado";
+            }
 
             var perfil = await _apiService.GetMeuPerfilAsync();
             if (perfil != null)

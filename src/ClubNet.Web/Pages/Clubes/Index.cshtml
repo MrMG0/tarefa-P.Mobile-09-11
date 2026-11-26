@@ -22,6 +22,7 @@
                         <th>ID</th>
                         <th>Nome do Clube</th>
                         <th>Sigla</th>
+                        <th>Presidente</th>
                         <th>Localização</th>
                         <th>Telefone / E-mail</th>
                         <th>Associados Ativos</th>
@@ -36,6 +37,17 @@
                             <td>#@c.Id</td>
                             <td class="fw-bold">@c.Nome</td>
                             <td><span class="badge bg-secondary">@c.Sigla</span></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(c.NomePresidente))
+                                {
+                                    <span class="fw-semibold">@c.NomePresidente</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Não cadastrado</span>
+                                    <a asp-page="/Usuarios/Index" class="small d-block">Cadastrar presidente</a>
+                                }
+                            </td>
                             <td>@c.Cidade / @c.Uf</td>
                             <td>
                                 <div class="small">@c.Telefone</div>
@@ -112,6 +124,21 @@
                             <label class="form-label fw-semibold">E-mail</label>
                             <input asp-for="NovoClube.Email" type="email" class="form-control" placeholder="contato@clube.com.br" />
                         </div>
+                    </div>
+                    <hr />
+                    <h6 class="fw-bold">Presidente do Clube</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome completo *</label>
+                        <input asp-for="NovoClube.NomePresidente" class="form-control" placeholder="Nome do presidente" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">E-mail de acesso *</label>
+                        <input asp-for="NovoClube.EmailPresidente" type="email" class="form-control" placeholder="presidente@clube.com.br" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Senha inicial *</label>
+                        <input asp-for="NovoClube.SenhaPresidente" type="password" class="form-control" minlength="6" required />
+                        <small class="form-text text-muted">O presidente poderá usar estes dados para entrar no sistema.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

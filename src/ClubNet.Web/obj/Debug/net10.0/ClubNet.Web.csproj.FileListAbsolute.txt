@@ -100,3 +100,12 @@ C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.pdb
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.genruntimeconfig.cache
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ref\ClubNet.Web.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.Web\obj\Debug\net10.0\ClubNet.Web.sourcelink.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\appsettings.Development.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\appsettings.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.staticwebassets.runtime.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.staticwebassets.endpoints.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.exe
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.deps.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.runtimeconfig.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.dll
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Web.pdb

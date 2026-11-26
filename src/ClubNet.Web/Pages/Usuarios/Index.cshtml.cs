@@ -15,6 +15,7 @@ public class IndexModel : PageModel
     }
 
     public List<UserInfoDto> Usuarios { get; set; } = new();
+    public List<ClubeDto> Clubes { get; set; } = new();
     public UserInfoDto? CurrentUser => _apiClient.CurrentUser;
 
     [BindProperty]
@@ -32,6 +33,10 @@ public class IndexModel : PageModel
 
         var idClube = user?.Perfil == "SUPERADMIN" ? null : user?.IdClube;
         Usuarios = await _apiClient.GetUsuariosAsync(idClube);
+        if (user?.Perfil == "SUPERADMIN")
+        {
+            Clubes = await _apiClient.GetClubesAsync(apenasAtivos: true);
+        }
 
         return Page();
     }
@@ -49,6 +54,14 @@ public class IndexModel : PageModel
         if (string.IsNullOrWhiteSpace(NovoUsuario.Nome) || string.IsNullOrWhiteSpace(NovoUsuario.Email) || string.IsNullOrWhiteSpace(NovoUsuario.Senha))
         {
             TempData["MensagemErro"] = "Preencha todos os campos obrigatórios.";
+            return RedirectToPage();
+        }
+
+        if (user?.Perfil == "SUPERADMIN" &&
+            string.Equals(NovoUsuario.Perfil, "PRESIDENTE", StringComparison.OrdinalIgnoreCase) &&
+            !NovoUsuario.IdClube.HasValue)
+        {
+            TempData["MensagemErro"] = "Selecione o clube do presidente.";
             return RedirectToPage();
         }
 

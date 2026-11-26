@@ -1,4 +1,5 @@
 using ClubNet.API.Data;
+using ClubNet.API.Security;
 using ClubNet.API.Services;
 using ClubNet.Shared.Constants;
 using ClubNet.Shared.DTOs;
@@ -49,6 +50,11 @@ public class ClubesController : ControllerBase
                 Uf = c.Uf,
                 Telefone = c.Telefone,
                 Email = c.Email,
+                NomePresidente = _db.Usuarios
+                    .Where(u => u.IdClube == c.Id && u.Perfil == Perfis.Presidente && u.Ativo)
+                    .OrderBy(u => u.Id)
+                    .Select(u => u.Nome)
+                    .FirstOrDefault(),
                 Ativo = c.Ativo,
                 TotalAssociados = _db.Associados.Count(a => a.IdClube == c.Id && a.SituacaoCadastro == SituacaoCadastro.Aprovado)
             })
@@ -60,23 +66,30 @@ public class ClubesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ClubeDto>> GetClube(int id)
     {
-        var c = await _db.Clubes.FindAsync(id);
-        if (c == null) return NotFound();
+        var clube = await _db.Clubes
+            .Where(c => c.Id == id)
+            .Select(c => new ClubeDto
+            {
+                Id = c.Id,
+                Nome = c.Nome,
+                Sigla = c.Sigla,
+                Endereco = c.Endereco,
+                Bairro = c.Bairro,
+                Cidade = c.Cidade,
+                Uf = c.Uf,
+                Telefone = c.Telefone,
+                Email = c.Email,
+                NomePresidente = _db.Usuarios
+                    .Where(u => u.IdClube == c.Id && u.Perfil == Perfis.Presidente && u.Ativo)
+                    .OrderBy(u => u.Id)
+                    .Select(u => u.Nome)
+                    .FirstOrDefault(),
+                Ativo = c.Ativo,
+                TotalAssociados = _db.Associados.Count(a => a.IdClube == c.Id && a.SituacaoCadastro == SituacaoCadastro.Aprovado)
+            })
+            .FirstOrDefaultAsync();
 
-        return Ok(new ClubeDto
-        {
-            Id = c.Id,
-            Nome = c.Nome,
-            Sigla = c.Sigla,
-            Endereco = c.Endereco,
-            Bairro = c.Bairro,
-            Cidade = c.Cidade,
-            Uf = c.Uf,
-            Telefone = c.Telefone,
-            Email = c.Email,
-            Ativo = c.Ativo,
-            TotalAssociados = await _db.Associados.CountAsync(a => a.IdClube == c.Id && a.SituacaoCadastro == SituacaoCadastro.Aprovado)
-        });
+        return clube == null ? NotFound() : Ok(clube);
     }
 
     [HttpPost]
@@ -85,6 +98,25 @@ public class ClubesController : ControllerBase
         if (!_currentUser.IsSuperAdmin)
         {
             return Forbid();
+        }
+
+        var temDadosPresidente =
+            !string.IsNullOrWhiteSpace(request.NomePresidente) ||
+            !string.IsNullOrWhiteSpace(request.EmailPresidente) ||
+            !string.IsNullOrWhiteSpace(request.SenhaPresidente);
+        if (temDadosPresidente &&
+            (string.IsNullOrWhiteSpace(request.NomePresidente) ||
+             string.IsNullOrWhiteSpace(request.EmailPresidente) ||
+             string.IsNullOrWhiteSpace(request.SenhaPresidente)))
+        {
+            return BadRequest("Informe nome, e-mail e senha inicial do presidente.");
+        }
+
+        var emailPresidente = request.EmailPresidente?.Trim().ToLowerInvariant();
+        if (emailPresidente != null &&
+            await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == emailPresidente))
+        {
+            return BadRequest("Este e-mail de presidente já está em uso.");
         }
 
         var clube = new Clube
@@ -100,8 +132,30 @@ public class ClubesController : ControllerBase
             Ativo = true
         };
 
-        _db.Clubes.Add(clube);
-        await _db.SaveChangesAsync();
+        Usuario? presidente = null;
+        await using (var transaction = await _db.Database.BeginTransactionAsync())
+        {
+            _db.Clubes.Add(clube);
+            await _db.SaveChangesAsync();
+
+            if (temDadosPresidente)
+            {
+                presidente = new Usuario
+                {
+                    Nome = request.NomePresidente!.Trim(),
+                    Email = emailPresidente!,
+                    SenhaHash = PasswordHasher.HashPassword(request.SenhaPresidente!),
+                    Perfil = Perfis.Presidente,
+                    IdClube = clube.Id,
+                    Ativo = true,
+                    DataCadastro = DateTime.UtcNow
+                };
+                _db.Usuarios.Add(presidente);
+                await _db.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
+        }
 
         return CreatedAtAction(nameof(GetClube), new { id = clube.Id }, new ClubeDto
         {
@@ -114,6 +168,7 @@ public class ClubesController : ControllerBase
             Uf = clube.Uf,
             Telefone = clube.Telefone,
             Email = clube.Email,
+            NomePresidente = presidente?.Nome,
             Ativo = clube.Ativo,
             TotalAssociados = 0
         });

@@ -10,3 +10,6 @@ C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\refint\ClubNet.Shar
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.pdb
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ref\ClubNet.Shared.dll
 C:\tarefaKaneko\ClubNet\src\ClubNet.Shared\obj\Debug\net10.0\ClubNet.Shared.sourcelink.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Shared.deps.json
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Shared.dll
+C:\Users\mathe\AppData\Local\Temp\ClubNet.Web.Build\ClubNet.Shared.pdb

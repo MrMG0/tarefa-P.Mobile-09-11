@@ -17,6 +17,7 @@ public interface IApiService
     void Logout();
 
     Task<List<ClubeDto>> GetClubesAsync();
+    Task<ClubeDto?> GetClubeAsync(int id);
     Task<AssociadoDto?> GetMeuPerfilAsync();
     Task<DependenteDto?> GetMeuDependenteAsync();
     Task<List<DependenteDto>> GetMeusDependentesAsync();
@@ -156,6 +157,18 @@ public class ApiService : IApiService
         catch
         {
             return new();
+        }
+    }
+
+    public async Task<ClubeDto?> GetClubeAsync(int id)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<ClubeDto>($"{BaseUrl}/api/clubes/{id}", _jsonOptions);
+        }
+        catch
+        {
+            return null;
         }
     }
 

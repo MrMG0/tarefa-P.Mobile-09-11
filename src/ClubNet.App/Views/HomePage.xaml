@@ -29,6 +29,11 @@
                         <Label x:Name="LblNomeAssociado" Text="..." TextColor="#f1f5f9" FontSize="13" FontAttributes="Bold" />
                     </HorizontalStackLayout>
 
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Presidente:" TextColor="#94a3b8" FontSize="13" />
+                        <Label x:Name="LblNomePresidente" Text="Não informado" TextColor="#f1f5f9" FontSize="13" FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+
                     <Border x:Name="BadgeSituacao"
                             BackgroundColor="#1e3a8a"
                             StrokeThickness="0"

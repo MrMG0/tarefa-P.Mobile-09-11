@@ -83,6 +83,24 @@ public class UsuariosController : ControllerBase
             }
         }
 
+        if (string.Equals(request.Perfil, Perfis.Presidente, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!targetClubeId.HasValue ||
+                !await _db.Clubes.AnyAsync(c => c.Id == targetClubeId.Value && c.Ativo))
+            {
+                return BadRequest("Selecione um clube ativo para vincular o presidente.");
+            }
+
+            var presidenteAtivoExiste = await _db.Usuarios.AnyAsync(u =>
+                u.IdClube == targetClubeId.Value &&
+                u.Perfil == Perfis.Presidente &&
+                u.Ativo);
+            if (presidenteAtivoExiste)
+            {
+                return BadRequest("Este clube já possui um presidente ativo.");
+            }
+        }
+
         var emailNormalizado = request.Email.Trim().ToLower();
         var existe = await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == emailNormalizado);
         if (existe)
@@ -95,7 +113,7 @@ public class UsuariosController : ControllerBase
             Nome = request.Nome.Trim(),
             Email = emailNormalizado,
             SenhaHash = PasswordHasher.HashPassword(request.Senha),
-            Perfil = request.Perfil,
+            Perfil = request.Perfil.Trim().ToUpperInvariant(),
             IdClube = targetClubeId,
             Ativo = true,
             DataCadastro = DateTime.UtcNow
